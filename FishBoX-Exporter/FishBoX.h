@@ -80,10 +80,12 @@ private:
 
 FishBoX::FishBoX()
 {
+
 }
 
 FishBoX::~FishBoX()
 {
+
 }
 
 

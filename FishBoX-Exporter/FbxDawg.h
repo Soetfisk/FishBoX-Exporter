@@ -37,6 +37,8 @@ class FbxDawg
 private:
 	/****/
 	void makeControlPointMap(FbxMesh* currMesh); //Only call once per mesh. Makes a list with length equal to number of control points.
+	void handleMesh(FbxNode * FbxChildNode);
+
 
 public:
 	FbxDawg();
