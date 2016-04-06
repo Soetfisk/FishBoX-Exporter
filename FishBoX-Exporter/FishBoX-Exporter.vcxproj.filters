@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Images">
+      <UniqueIdentifier>{030256b0-ed6b-4893-8a61-43a8d71da18b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestFiles">
+      <UniqueIdentifier>{dfb9c562-fc14-416c-801b-3b77ec6ff4f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -24,6 +30,12 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FishBoX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxDawg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -32,5 +44,21 @@
     <ClCompile Include="FishBoX-Exporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FbxDawg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestFile\TestBox.fbx">
+      <Filter>TestFiles</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\sexypicTestTexture.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="images\normal_map.jpg">
+      <Filter>Images</Filter>
+    </Image>
   </ItemGroup>
 </Project>
