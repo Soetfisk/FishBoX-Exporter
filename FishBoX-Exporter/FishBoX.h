@@ -9,7 +9,7 @@ class FishBoX
 public:
 	FishBoX();
 	~FishBoX();
-	void initialize();
+
 private:
 	struct fileHeader
 	{
@@ -82,7 +82,10 @@ private:
 	};
 
 private:
-	FbxDaw
+	FbxDawg FBX;
+
+public:
+	void initialize();
 
 
 };

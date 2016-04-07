@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "FbxDawg.h"
 
 
@@ -109,15 +109,8 @@ void FbxDawg::makeIndexList()
 			{
 				FBXIndexArray[other] = FBXIndexArray[vertex]; //Remove that index and replace with earlier.
 			}
-
-
 		}//printf("%d\n", FBXIndexArray[vertex]); //Compared with all other.
-
-
-
 	}//All vertexes have been compared
-
-
 }
 
 void FbxDawg::makeControlPointMap(FbxMesh* currMesh)
@@ -261,7 +254,7 @@ void FbxDawg::processNormals(FbxMesh* mesh, std::vector<MyVertexStruct>& vertDat
 	{
 		FbxVector4 normals;
 		int indexByPolygonVertex = 0;
-
+		
 		for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) //For every triangle
 		{
 			int polygonSize = mesh->GetPolygonSize(polygonIndex);
