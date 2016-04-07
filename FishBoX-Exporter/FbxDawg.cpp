@@ -49,6 +49,7 @@ void FbxDawg::loadModels(const char* filePath)
 
 	ios->SetBoolProp(IMP_FBX_MATERIAL, true);
 	ios->SetBoolProp(IMP_FBX_TEXTURE, true);
+	ios->SetBoolProp(IMP_FBX_ANIMATION, true);
 
 
 	FbxScene* Fbx_Scene = FbxScene::Create(SDK_Manager, "myScene"); //FbxScene contains all the nodes, materials, textures, poses, characters
@@ -59,13 +60,10 @@ void FbxDawg::loadModels(const char* filePath)
 	Fbx_Importer->Initialize(filePath, -1, SDK_Manager->GetIOSettings());// eller ios istället för SDK_M
 	Fbx_Importer->Import(Fbx_Scene);
 
-
-
 	FbxNode* FBXRootNode = Fbx_Scene->GetRootNode(); // FbxCamera, FbxLight, FbxMesh, etc... elements organized in a hierarchical tree. Root is the mother and by FbxNode::GetChild() we work our way down
 
 	if (FBXRootNode)
 	{
-
 		for (int i = 0; i < FBXRootNode->GetChildCount(); i++)//For each and every childnode...
 		{
 			FbxNode* FbxChildNode = FBXRootNode->GetChild(i);//... initialize the childnode we are at
@@ -76,9 +74,7 @@ void FbxDawg::loadModels(const char* filePath)
 			FbxNodeAttribute::EType AttributeType = FbxChildNode->GetNodeAttribute()->GetAttributeType();//... But if its not unset, we check what type the content is, FbxCamera, FbxSkeleton, FbxMesh, etc...
 
 			if (AttributeType == FbxNodeAttribute::eMesh)// Only meshes allowed to enter check.
-				continue;// Go to next child/mesh
-
-
+				processMesh(FbxChildNode);
 		}
 		Fbx_Importer->Destroy();
 	}
@@ -134,7 +130,7 @@ void FbxDawg::makeControlPointMap(FbxMesh* currMesh)
 	}
 }
 
-void FbxDawg::handleMesh(FbxNode * FbxChildNode)
+void FbxDawg::processMesh(FbxNode * FbxChildNode)
 {
 	FbxMesh* mesh = (FbxMesh*)FbxChildNode->GetNodeAttribute();//we are sure that there was a mesh that went through, we get the content of the node.
 
@@ -142,10 +138,104 @@ void FbxDawg::handleMesh(FbxNode * FbxChildNode)
 	if (mesh->GetDeformerCount(FbxDeformer::eBlendShape) > 0)
 		this->bsLoader(mesh);
 
-	std::vector<MyIndexStruct> IndexVector; IndexVector.resize(mesh->GetPolygonCount() * 3);
+	std::vector<MyIndexStruct> indexData; indexData.resize(mesh->GetPolygonCount() * 3);
+	std::vector<MyVertexStruct> vertData; vertData.resize(mesh->GetPolygonCount() * 3);
 
-	static int offsets[] = { 1, 0, 2 }; //offset made because directX is left-hand-oriented else the textures and vertices get mirrored.
 
+	//static int offsets[] = { 1, 0, 2 }; //offset made because directX is left-hand-oriented else the textures and vertices get mirrored.
+	static int offsets[] = { 0, 0, 0 }; //opengl
+
+	processVertex(mesh, vertData, indexData, offsets);
+	processNormals(mesh, vertData, indexData, offsets);
+	processUV(mesh, vertData, indexData, offsets);
+
+
+	//>>>>>>>>>Texture filepath<<<<<<<<<<<<<<<
+	int material_Count = mesh->GetSrcObjectCount<FbxSurfaceMaterial>();
+	int matCount = FbxChildNode->GetMaterialCount();
+	for (int m = 0; m < matCount; m++)//.. for every material attached to the mesh
+	{
+		FbxSurfaceMaterial* material = FbxChildNode->GetMaterial(m);
+		if (material)//.. if material
+		{
+			FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+			int texture_Count = prop.GetSrcObjectCount<FbxTexture>();
+			for (int i = 0; i < texture_Count; i++)// how many texturefiles attached to the material
+			{
+				const FbxTexture* texture = FbxCast<FbxTexture>(prop.GetSrcObject<FbxTexture>(i));
+
+				wchar_t* wideName;
+				FbxUTF8ToWC(((const FbxFileTexture*)texture)->GetFileName(), wideName);
+
+				textureFilepath = wideName;
+
+				FbxFree(wideName);
+			}
+		}
+	}
+
+#pragma region >>ASSEMBLY OF VERTEXDATA<<
+	MyVertexStruct tempVertex;
+	MyBSposStruct tempBlendShape;
+	MyIndexStruct tempIndex;
+	FbxVector4* Vertices;
+
+	Vertices = mesh->GetControlPoints();
+
+	for (int i = 0; i < indexData.size(); i++)
+	{
+		//printf("pos %d nor %d uv %d\n", indexData[i].posIndex, indexData[i].norIndex, indexData[i].uvIndex);
+		FbxVector4 normals = mesh->GetElementNormal()->GetDirectArray().GetAt(indexData[i].norIndex);
+		tempVertex.norX = normals[0];
+		tempVertex.norY = normals[1];
+		tempVertex.norZ = (-1)*(normals[2]);
+
+		tempVertex.x = (float)Vertices[indexData[i].posIndex].mData[0];
+		tempVertex.y = (float)Vertices[indexData[i].posIndex].mData[1];
+		tempVertex.z = -1 * ((float)Vertices[indexData[i].posIndex].mData[2]);
+
+
+		FbxVector2 UVValue = indexData[i].UVElement->GetDirectArray().GetAt(indexData[i].uvIndex);
+		tempVertex.u = UVValue.mData[0];
+		tempVertex.v = 1 - UVValue.mData[1];
+
+		this->modelVertexList.push_back(tempVertex);
+	}
+
+	for (int j = 0; j < bsVert.size(); j++)
+		Vertices = bsVert[j];
+	for (int i = 0; i < indexData.size(); i++)
+	{
+
+		//normals = normalElement->GetDirectArray().GetAt(indexData[i].norIndex);
+		//tempVertex.norX = normals[0];
+		//tempVertex.norY = normals[1];
+		//tempVertex.norZ = (-1)*(normals[2]);
+
+		tempBlendShape.x = (float)Vertices[indexData[i].posIndex].mData[0];
+		tempBlendShape.y = (float)Vertices[indexData[i].posIndex].mData[1];
+		tempBlendShape.z = -1 * ((float)Vertices[indexData[i].posIndex].mData[2]);
+
+		//FbxVector2 UVValue = indexData[i].UVElement->GetDirectArray().GetAt(indexData[i].uvIndex);
+		//tempVertex.u = UVValue.mData[0];
+		//tempVertex.v = 1 - UVValue.mData[1];
+
+		this->blendShapes.push_back(tempBlendShape);
+	}
+
+	this->makeIndexList();
+
+
+#pragma endregion >>ASSEMBLY OF VERTEXDATA<<
+
+	//>>>>>>>CREATING THE MAP OF CONTROL POINTS<<<<<<<<<
+	//________________________________________________
+	makeControlPointMap(mesh);//<---------------------
+							  //________________________________________________
+
+}
+void FbxDawg::processVertex(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, std::vector<MyIndexStruct>& indexData, const int * offsets)
+{
 #pragma region >>VERTEX POSITION<<
 
 	for (int t = 0; t < mesh->GetPolygonCount(); t++)//
@@ -156,13 +246,14 @@ void FbxDawg::handleMesh(FbxNode * FbxChildNode)
 		for (int v = 0; v < totalVertices; v++)//
 		{
 			int controlPointIndex = mesh->GetPolygonVertex(t, v);
-			IndexVector[(t * 3) + offsets[v]].posIndex = controlPointIndex; //adding index to a list. To create vertex later.
-
+			indexData[(t * 3) + offsets[v]].posIndex = controlPointIndex; //adding index to a list. To create vertex later.
 		}
-
 	}
 #pragma endregion >>VERTEX POSITION<<
 
+}
+void FbxDawg::processNormals(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, std::vector<MyIndexStruct>& indexData, const int * offsets)
+{
 #pragma region >>NORMALS<<
 	FbxVector4 normals;
 	FbxGeometryElementNormal* normalElement = mesh->GetElementNormal();
@@ -187,7 +278,7 @@ void FbxDawg::handleMesh(FbxNode * FbxChildNode)
 				}
 
 				normals = normalElement->GetDirectArray().GetAt(normalIndex);
-				IndexVector[polygonIndex * 3 + offsets[i]].norIndex = normalIndex;
+				indexData[polygonIndex * 3 + offsets[i]].norIndex = normalIndex;
 				indexByPolygonVertex++;
 			}
 		}
@@ -199,10 +290,8 @@ void FbxDawg::handleMesh(FbxNode * FbxChildNode)
 		FbxVector4 normals;
 		int indexByPolygonVertex = 0;
 
-
 		for (int polygonIndex = 0; polygonIndex < mesh->GetPolygonCount(); polygonIndex++) //For every triangle
 		{
-
 			int polygonSize = mesh->GetPolygonSize(polygonIndex);
 
 			for (int i = 0; i < polygonSize; i++) //For every vertex in triangle
@@ -217,13 +306,16 @@ void FbxDawg::handleMesh(FbxNode * FbxChildNode)
 				}
 
 				normals = normalElement->GetDirectArray().GetAt(normalIndex);
-				IndexVector[polygonIndex * 3 + offsets[i]].norIndex = normalIndex;
+				indexData[polygonIndex * 3 + offsets[i]].norIndex = normalIndex;
 				indexByPolygonVertex++;
 			}
 
 		}
 	}
 #pragma endregion >> NORMALS <<
+}
+void FbxDawg::processUV(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, std::vector<MyIndexStruct>& indexData, const int * offsets)
+{
 
 #pragma region >>UV<<
 
@@ -269,9 +361,9 @@ void FbxDawg::handleMesh(FbxNode * FbxChildNode)
 					int UVIndex = useIndex ? UVElement->GetIndexArray().GetAt(polyVertIndex) : polyVertIndex;//<----questionmark and : again...
 
 					UVValue = UVElement->GetDirectArray().GetAt(UVIndex);
-					IndexVector[polyIndex*polySize + offsets[vertIndex]].uvIndex = UVIndex;
-					IndexVector[polyIndex*polySize + offsets[vertIndex]].UVSetName = UVSetName;
-					IndexVector[polyIndex*polySize + offsets[vertIndex]].UVElement = UVElement;
+					indexData[polyIndex*polySize + offsets[vertIndex]].uvIndex = UVIndex;
+					indexData[polyIndex*polySize + offsets[vertIndex]].UVSetName = UVSetName;
+					indexData[polyIndex*polySize + offsets[vertIndex]].UVElement = UVElement;
 					polyIndexCounter++;
 
 				}
@@ -293,9 +385,9 @@ void FbxDawg::handleMesh(FbxNode * FbxChildNode)
 
 						UVValue = UVElement->GetDirectArray().GetAt(UVIndex);
 
-						IndexVector[polyIndex*polySize + offsets[vertIndex]].uvIndex = UVIndex;
-						IndexVector[polyIndex*polySize + offsets[vertIndex]].UVSetName = UVSetName;
-						IndexVector[polyIndex*polySize + offsets[vertIndex]].UVElement = UVElement;
+						indexData[polyIndex*polySize + offsets[vertIndex]].uvIndex = UVIndex;
+						indexData[polyIndex*polySize + offsets[vertIndex]].UVSetName = UVSetName;
+						indexData[polyIndex*polySize + offsets[vertIndex]].UVElement = UVElement;
 						polyIndexCounter++;
 
 					}
@@ -307,92 +399,10 @@ void FbxDawg::handleMesh(FbxNode * FbxChildNode)
 
 	}//uv
 
-	 //>>>>>>>>>Texture filepath<<<<<<<<<<<<<<<
-	int material_Count = mesh->GetSrcObjectCount<FbxSurfaceMaterial>();
-	int matCount = FbxChildNode->GetMaterialCount();
-	for (int m = 0; m < matCount; m++)//.. for every material attached to the mesh
-	{
-		FbxSurfaceMaterial* material = FbxChildNode->GetMaterial(m);
-		if (material)//.. if material
-		{
-			FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
-			int texture_Count = prop.GetSrcObjectCount<FbxTexture>();
-			for (int i = 0; i < texture_Count; i++)// how many texturefiles attached to the material
-			{
-				const FbxTexture* texture = FbxCast<FbxTexture>(prop.GetSrcObject<FbxTexture>(i));
-
-				wchar_t* wideName;
-				FbxUTF8ToWC(((const FbxFileTexture*)texture)->GetFileName(), wideName);
-
-				textureFilepath = wideName;
-
-				FbxFree(wideName);
-			}
-		}
-	}
 
 #pragma endregion >>UV<<
-
-#pragma region >>ASSEMBLY OF VERTEXDATA<<
-	MyVertexStruct tempVertex;
-	MyBSposStruct tempBlendShape;
-	MyIndexStruct tempIndex;
-	FbxVector4* Vertices;
-
-	Vertices = mesh->GetControlPoints();
-
-	for (int i = 0; i < IndexVector.size(); i++)
-	{
-		//printf("pos %d nor %d uv %d\n", IndexVector[i].posIndex, IndexVector[i].norIndex, IndexVector[i].uvIndex);
-		normals = normalElement->GetDirectArray().GetAt(IndexVector[i].norIndex);
-		tempVertex.norX = normals[0];
-		tempVertex.norY = normals[1];
-		tempVertex.norZ = (-1)*(normals[2]);
-
-		tempVertex.x = (float)Vertices[IndexVector[i].posIndex].mData[0];
-		tempVertex.y = (float)Vertices[IndexVector[i].posIndex].mData[1];
-		tempVertex.z = -1 * ((float)Vertices[IndexVector[i].posIndex].mData[2]);
-
-
-		FbxVector2 UVValue = IndexVector[i].UVElement->GetDirectArray().GetAt(IndexVector[i].uvIndex);
-		tempVertex.u = UVValue.mData[0];
-		tempVertex.v = 1 - UVValue.mData[1];
-
-		this->modelVertexList.push_back(tempVertex);
-	}
-
-	for (int j = 0; j < bsVert.size(); j++)
-		Vertices = bsVert[j];
-	for (int i = 0; i < IndexVector.size(); i++)
-	{
-
-		//normals = normalElement->GetDirectArray().GetAt(IndexVector[i].norIndex);
-		//tempVertex.norX = normals[0];
-		//tempVertex.norY = normals[1];
-		//tempVertex.norZ = (-1)*(normals[2]);
-
-		tempBlendShape.x = (float)Vertices[IndexVector[i].posIndex].mData[0];
-		tempBlendShape.y = (float)Vertices[IndexVector[i].posIndex].mData[1];
-		tempBlendShape.z = -1 * ((float)Vertices[IndexVector[i].posIndex].mData[2]);
-
-		//FbxVector2 UVValue = IndexVector[i].UVElement->GetDirectArray().GetAt(IndexVector[i].uvIndex);
-		//tempVertex.u = UVValue.mData[0];
-		//tempVertex.v = 1 - UVValue.mData[1];
-
-		this->blendShapes.push_back(tempBlendShape);
-	}
-
-	this->makeIndexList();
-
-
-#pragma endregion >>ASSEMBLY OF VERTEXDATA<<
-
-	//>>>>>>>CREATING THE MAP OF CONTROL POINTS<<<<<<<<<
-	//________________________________________________
-	makeControlPointMap(mesh);//<---------------------
-							  //________________________________________________
-
-}//for mesh
+}
+//for mesh
 
 
 

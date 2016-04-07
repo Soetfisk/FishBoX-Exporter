@@ -2,12 +2,14 @@
 #ifndef FISHBOX_H
 #define FISHBOX_H
 
+#include "FbxDawg.h"
+
 class FishBoX
 {
 public:
 	FishBoX();
 	~FishBoX();
-
+	void initialize();
 private:
 	struct fileHeader
 	{
@@ -33,7 +35,9 @@ private:
 	};
 	struct index
 	{
-		unsigned int vertexIndex;
+		unsigned int vertexIndex[3];
+		unsigned int normalIndex[3];
+		unsigned int uvIndex[3];
 	};
 	struct blendShape
 	{
@@ -76,17 +80,14 @@ private:
 		float target[3];
 		float upVec[3];
 	};
+
+private:
+	FbxDaw
+
+
 };
 
-FishBoX::FishBoX()
-{
 
-}
-
-FishBoX::~FishBoX()
-{
-
-}
 
 
 
