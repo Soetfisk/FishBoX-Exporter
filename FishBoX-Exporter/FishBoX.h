@@ -6,10 +6,6 @@
 
 class FishBoX
 {
-public:
-	FishBoX();
-	~FishBoX();
-
 private:
 	struct fileHeader
 	{
@@ -35,9 +31,7 @@ private:
 	};
 	struct index
 	{
-		unsigned int vertexIndex[3];
-		unsigned int normalIndex[3];
-		unsigned int uvIndex[3];
+		unsigned int vertexIndex;
 	};
 	struct blendShape
 	{
@@ -45,13 +39,13 @@ private:
 	};
 	struct material
 	{
-		 char materialName[256];
-		 char textureFilePath[256];
-		 char normalFilePath[256];
+		char materialName[256];
+		char textureFilePath[256];
+		char normalFilePath[256];
 
-		 float diffuse[3];
-		 float spec[3];
-		 float shinyness;
+		float diffuse[3];
+		float spec[3];
+		float shinyness;
 	};
 	struct directionalLight
 	{
@@ -81,8 +75,17 @@ private:
 		float upVec[3];
 	};
 
+public:
+	FishBoX();
+	~FishBoX();
+
 private:
 	FbxDawg FBX;
+	fileHeader HEADER;
+	mesh * meshes;
+	vertexData * vertices;
+	index * indices;
+
 
 public:
 	void initialize();
