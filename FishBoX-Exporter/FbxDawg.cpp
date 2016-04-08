@@ -32,8 +32,8 @@ FbxDawg::FbxDawg()
 
 FbxDawg::~FbxDawg()
 {
+	
 	delete this->FBXIndexArray;
-
 }
 
 
@@ -78,19 +78,25 @@ void FbxDawg::loadModels(const char* filePath)
 		}
 		Fbx_Importer->Destroy();
 	}
+
+	printf("%d meshes loaded\n", MeshVec.size());
 } //end of loader
 
 
 
-void FbxDawg::makeIndexList()
+std::vector<int> FbxDawg::makeIndexList(std::vector<MyVertexStruct> modelVertexList)
 {
-	this->FBXIndexArray = new int[this->modelVertexList.size()];
-	this->sizeOfFBXIndexArray = this->modelVertexList.size();
+
+	if (FBXIndexArray != nullptr)
+		delete[] this->FBXIndexArray;
+
+	this->FBXIndexArray = new int[modelVertexList.size()];
+	this->sizeOfFBXIndexArray = modelVertexList.size();
 
 	for (int i = 0; i < this->sizeOfFBXIndexArray; i++)
 		FBXIndexArray[i] = i;
 
-	for (int vertex = 0; vertex< this->modelVertexList.size(); vertex++)
+	for (int vertex = 0; vertex< modelVertexList.size(); vertex++)
 	{
 		for (int other = vertex + 1; other < modelVertexList.size(); other++)
 		{
@@ -110,7 +116,17 @@ void FbxDawg::makeIndexList()
 				FBXIndexArray[other] = FBXIndexArray[vertex]; //Remove that index and replace with earlier.
 			}
 		}//printf("%d\n", FBXIndexArray[vertex]); //Compared with all other.
+
 	}//All vertexes have been compared
+
+	//convert to vector for reasons
+	std::vector<int> indexVec;
+	indexVec.resize(sizeOfFBXIndexArray);
+
+	for (int i = 0; i < sizeOfFBXIndexArray; i++)
+		indexVec[i] = FBXIndexArray[i];
+
+	return indexVec;
 }
 
 void FbxDawg::makeControlPointMap(FbxMesh* currMesh)
@@ -131,16 +147,19 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 	if (mesh->GetDeformerCount(FbxDeformer::eBlendShape) > 0)
 		this->bsLoader(mesh);
 
+	Mesh tempMesh;
+	tempMesh.vertexData.resize(mesh->GetPolygonCount() * 3);
+
 	std::vector<MyIndexStruct> indexData; indexData.resize(mesh->GetPolygonCount() * 3);
-	std::vector<MyVertexStruct> vertData; vertData.resize(mesh->GetPolygonCount() * 3);
+	//std::vector<MyVertexStruct> vertData; vertData.resize(mesh->GetPolygonCount() * 3);
 
 
-	//static int offsets[] = { 1, 0, 2 }; //offset made because directX is left-hand-oriented else the textures and vertices get mirrored.
-	static int offsets[] = { 0, 0, 0 }; //opengl
+	//static int offsets[] = { 1, 0, 2 }; //directX
+	static int offsets[] = { 0, 1, 2 }; //opengl
 
-	processVertex(mesh, vertData, indexData, offsets);
-	processNormals(mesh, vertData, indexData, offsets);
-	processUV(mesh, vertData, indexData, offsets);
+	processVertex(mesh, tempMesh.vertexData, indexData, offsets);
+	processNormals(mesh, tempMesh.vertexData, indexData, offsets);
+	processUV(mesh, tempMesh.vertexData, indexData, offsets);
 
 
 	//>>>>>>>>>Texture filepath<<<<<<<<<<<<<<<
@@ -192,7 +211,7 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 		tempVertex.u = UVValue.mData[0];
 		tempVertex.v = 1 - UVValue.mData[1];
 
-		this->modelVertexList.push_back(tempVertex);
+		tempMesh.vertexData.push_back(tempVertex);
 	}
 
 	for (int j = 0; j < bsVert.size(); j++)
@@ -216,8 +235,9 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 		this->blendShapes.push_back(tempBlendShape);
 	}
 
-	this->makeIndexList();
+	tempMesh.index = this->makeIndexList(tempMesh.vertexData);
 
+	this->MeshVec.push_back(tempMesh);
 
 #pragma endregion >>ASSEMBLY OF VERTEXDATA<<
 
@@ -628,6 +648,11 @@ void FbxDawg::bsLoader(FbxMesh * mesh)
 			}
 		}
 	}
+}
+
+std::vector<Mesh> FbxDawg::GetMeshVec()
+{
+	return MeshVec;
 }
 
 

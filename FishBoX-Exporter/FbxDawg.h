@@ -30,6 +30,12 @@ struct MyIndexStruct
 	char* UVSetName;
 	FbxGeometryElementUV* UVElement;
 };
+
+struct Mesh
+{
+	std::vector<MyVertexStruct> vertexData;
+	std::vector<int> index;
+};
 #pragma endregion structs
 
 class FbxDawg
@@ -42,6 +48,8 @@ private:
 	void processNormals(FbxMesh* mesh, std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
 	void processUV(FbxMesh* mesh, std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
 
+private:
+	std::vector<Mesh> MeshVec;
 
 public:
 	FbxDawg();
@@ -49,7 +57,7 @@ public:
 
 	std::wstring textureFilepath;//När denna blir tilldelad så får den en kopia istället. Så vi kan utan problem radera den variablen som var med i tilldelningen.
 	void loadModels(const char* filePath);
-	void makeIndexList();
+	std::vector<int> FbxDawg::makeIndexList(std::vector<MyVertexStruct>);
 
 	void getJointData(FbxNode* rootNode, FbxScene* Fbx_Scene);
 	void processJointHierarchy(FbxNode* inRootNode);
@@ -58,6 +66,8 @@ public:
 	int* FBXIndexArray = nullptr;
 	int sizeOfFBXIndexArray = 0;
 	void bsLoader(FbxMesh * mesh);
+
+	std::vector<Mesh> GetMeshVec();
 
 	//Core datatypes: FbxSkeleton, eRoot, eLimb, eEffector
 	struct sJoint { //s as in struct :D
