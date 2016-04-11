@@ -194,7 +194,7 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 
 	Vertices = mesh->GetControlPoints();
 
-	for (int i = 0; i < indexData.size(); i++)
+	for (int i = 0; i < indexData.size(); i++) // DOUBVLES THE CUBE FOR SOME REASON
 	{
 		//printf("pos %d nor %d uv %d\n", indexData[i].posIndex, indexData[i].norIndex, indexData[i].uvIndex);
 		FbxVector4 normals = mesh->GetElementNormal()->GetDirectArray().GetAt(indexData[i].norIndex);
@@ -211,7 +211,7 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 		tempVertex.u = UVValue.mData[0];
 		tempVertex.v = 1 - UVValue.mData[1];
 
-		tempMesh.vertexData.push_back(tempVertex);
+		tempMesh.vertexData[i] = tempVertex;
 	}
 
 	for (int j = 0; j < bsVert.size(); j++)
@@ -234,6 +234,9 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 
 		this->blendShapes.push_back(tempBlendShape);
 	}
+	
+
+	this->makeIndexList(tempMesh.vertexData);
 
 	tempMesh.index = this->makeIndexList(tempMesh.vertexData);
 

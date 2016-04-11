@@ -1,8 +1,15 @@
 #pragma once
 #ifndef FISHBOX_H
 #define FISHBOX_H
+#define EQUAL(A,B) (abs((A)-(B)) < DELTA) ? true:false
 
 #include "FbxDawg.h"
+#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <io.h>
+
+
 
 class FishBoX
 {
@@ -14,6 +21,7 @@ private:
 		unsigned int directionalLightCount;
 		unsigned int pointLightCount;
 		unsigned int areaLightCount;
+		unsigned int cameraCount;
 	};
 	struct mesh
 	{
@@ -21,7 +29,7 @@ private:
 		unsigned int vertexCount;
 		unsigned int blendshapesCount;
 		unsigned int indexCount;
-		unsigned int cameraCount;
+		
 	};
 	struct vertexData
 	{
@@ -75,6 +83,7 @@ private:
 		float upVec[3];
 	};
 
+
 public:
 	FishBoX();
 	~FishBoX();
@@ -82,15 +91,29 @@ public:
 private:
 	FbxDawg FBX;
 	fileHeader HEADER;
-	mesh * meshes;
-	vertexData * vertices;
-	index * indices;
+
+
+	mesh * meArray;
+	material * maArray;
+	directionalLight * dlArray;
+	pointLight * plArray;
+	areaLight *alArray;
+
+	vertexData ** vArray;
+	index ** iArray;
+
+	int fbxFileCount;
+	std::string * fbxNames;
 
 
 public:
 	void initialize();
 
-
+private:
+	void listFiles(const char* path);
+	void printShit();
+	void writeShit();
+	void writeErrorCheck();
 };
 
 
