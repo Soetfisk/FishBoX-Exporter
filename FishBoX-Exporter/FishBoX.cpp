@@ -72,35 +72,37 @@ void FishBoX::printShit()
 		printf("\nIndices: %d", FBX.GetMeshVec()[i].index.size());
 
 		//initialize the current vertexData array
-		vArray[i] = new vertexData[FBX.GetMeshVec()[i].vertexData.size()];
+		vArray[i] = new vertexData[meArray[i].vertexCount];
 		//initialize the current index array
-		iArray[i] = new index[FBX.GetMeshVec()[i].index.size()];
+		iArray[i] = new index[meArray[i].vertexCount];
+		
 
-		
-		
-		for (int j = 0; j < FBX.GetMeshVec()[i].vertexData.size(); j++) //vertexData
+		for (int j = 0; j < meArray[i].vertexCount; j++) //vertexData
 		{
+
+
+
 			printf("\n\nVertex Index: %d\n", FBX.GetMeshVec()[i].index[j]);
-			//set pos then print it
-			vArray[i][j].pos[0] = FBX.GetMeshVec()[i].vertexData[i].x;
-			vArray[i][j].pos[1] = FBX.GetMeshVec()[i].vertexData[i].y;
-			vArray[i][j].pos[2] = FBX.GetMeshVec()[i].vertexData[i].z;
+			//set pos then print it;
+			vArray[i][j].pos[0] = FBX.GetMeshVec()[i].vertexData[j].x;
+			vArray[i][j].pos[1] = FBX.GetMeshVec()[i].vertexData[j].y;
+			vArray[i][j].pos[2] = FBX.GetMeshVec()[i].vertexData[j].z;
 
 			printf("Position\n X: %f, Y: %f, Z: %f\n", vArray[i][j].pos[0],
-				vArray[i][j].pos[1],
-				vArray[i][j].pos[2]);
+			vArray[i][j].pos[1],
+			vArray[i][j].pos[2]);
 
 			//set normal then print it
-			vArray[i][j].normal[0] = FBX.GetMeshVec()[i].vertexData[i].norX;
-			vArray[i][j].normal[1] = FBX.GetMeshVec()[i].vertexData[i].norY;
-			vArray[i][j].normal[2] = FBX.GetMeshVec()[i].vertexData[i].norZ;
+			vArray[i][j].normal[0] = FBX.GetMeshVec()[i].vertexData[j].norX;
+			vArray[i][j].normal[1] = FBX.GetMeshVec()[i].vertexData[j].norY;
+			vArray[i][j].normal[2] = FBX.GetMeshVec()[i].vertexData[j].norZ;
 			printf("Normal\n X: %f, Y: %f, Z: %f\n", FBX.GetMeshVec()[i].vertexData[i].norX,
 				FBX.GetMeshVec()[i].vertexData[i].norY,
 				FBX.GetMeshVec()[i].vertexData[i].norZ);
 
 			//SET UV AND MMMMMGUESS WHAT... PRINT IT
-			vArray[i][j].uv[0] = FBX.GetMeshVec()[i].vertexData[i].u;
-			vArray[i][j].uv[1] = FBX.GetMeshVec()[i].vertexData[i].v;
+			vArray[i][j].uv[0] = FBX.GetMeshVec()[i].vertexData[j].u;
+			vArray[i][j].uv[1] = FBX.GetMeshVec()[i].vertexData[j].v;
 
 			printf("UVs\n U: %f, V: %f\n", FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].u,
 				FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].v);
@@ -209,10 +211,8 @@ void FishBoX::writeErrorCheck() //check if written file matches file in memory
 		}
 
 		int result = memcmp(tVertex[i], vArray[i], tMesh[i].vertexCount*sizeof(vertexData));
-
-
-
 		printf("\nresult: %d\n", result);
+
 	}
 
 	infile.close();
