@@ -51,6 +51,7 @@ private:
 		char textureFilePath[256];
 		char normalFilePath[256];
 
+		float ambient[3];
 		float diffuse[3];
 		float spec[3];
 		float shinyness;
