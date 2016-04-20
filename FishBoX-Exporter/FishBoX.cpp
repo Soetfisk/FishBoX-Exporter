@@ -7,26 +7,58 @@ FishBoX::FishBoX()
 
 FishBoX::~FishBoX()
 {
-
+	
 }
 
 void FishBoX::initialize()
 {
-	FBX.loadModels("./TestBox.fbx");
-
-	//listFiles("./");
+	FBX.loadModels("./tempfish.fbx");
 
 	HEADER.meshCount = FBX.GetMeshVec().size();
-	HEADER.materialCount = 0;
+	HEADER.materialCount = FBX.GetMaterialVec().size();
+	HEADER.directionalLightCount = 0;
+	HEADER.pointLightCount = 0;
+	HEADER.areaLightCount = 0;
+	HEADER.cameraCount = 0;
+
+	printShit();
+	writeShit("tempfish.FSH");
+}
+
+void FishBoX::initialize(std::string filepath)
+{
+	FBX.loadModels(filepath.c_str());
+
+	HEADER.meshCount = FBX.GetMeshVec().size();
+	HEADER.materialCount = FBX.GetMaterialVec().size();
 	HEADER.directionalLightCount = 0;
 	HEADER.pointLightCount = 0;
 	HEADER.areaLightCount = 0;
 	HEADER.cameraCount = 0;
 	
+	int len = filepath.length();
 	
+	if (filepath[len - 1] == '\r')
+	{
+		filepath.replace(len - 1, 1, "");
+	}
+	if (filepath[len - 1] == '\n')
+	{
+		filepath.replace(len - 1, 1, "");
+	}
+
+	std::string newfilename = filepath.substr(0, filepath.find_last_of('.')) + ".FSH";
+
 	printShit();
-	writeShit();
+	writeShit(newfilename.c_str());
 }
+//
+//void FishBoX::test()
+//{
+//	char derp[256];
+//	std::string string = "hello penis face";
+//	//derp = convertString(string);
+//}
 
 void FishBoX::printShit()
 {
@@ -56,12 +88,12 @@ void FishBoX::printShit()
 		printf("\n\nMesh: %d", (i + 1));
 
 		//set material name then print it
-		meArray[i].materialName[0] = 't'; meArray[i].materialName[1] = 'e'; meArray[i].materialName[2] = 'm'; meArray[i].materialName[3] = 'p'; //TEMP
-		printf("\nMaterialName: %c%c%c%c", meArray[i].materialName[0], meArray[i].materialName[1], meArray[i].materialName[2], meArray[i].materialName[3]); //TEMP
+		strncpy_s(meArray[i].materialName, FBX.GetMeshVec()[i].materialName, sizeof(FBX.GetMeshVec()[i].materialName)); //TEMP
+		printf("\nMaterialName: %s", meArray[i].materialName); //TEMP
 		
 		//set vertexcount then print it
 		meArray[i].vertexCount = FBX.GetMeshVec()[i].vertexData.size();
-		printf("\n\nVertices: %d", FBX.GetMeshVec()[i].vertexData.size());
+		printf("\nVertices: %d", FBX.GetMeshVec()[i].vertexData.size());
 
 		//set blendshapeCount then print it
 		meArray[i].blendshapesCount = 0; //TEMP
@@ -80,32 +112,30 @@ void FishBoX::printShit()
 		for (int j = 0; j < meArray[i].vertexCount; j++) //vertexData
 		{
 
-
-
-			printf("\n\nVertex Index: %d\n", FBX.GetMeshVec()[i].index[j]);
+			//printf("\n\nVertex Index: %d\n", FBX.GetMeshVec()[i].index[j]);
 			//set pos then print it;
 			vArray[i][j].pos[0] = FBX.GetMeshVec()[i].vertexData[j].x;
 			vArray[i][j].pos[1] = FBX.GetMeshVec()[i].vertexData[j].y;
 			vArray[i][j].pos[2] = FBX.GetMeshVec()[i].vertexData[j].z;
 
-			printf("Position\n X: %f, Y: %f, Z: %f\n", vArray[i][j].pos[0],
-			vArray[i][j].pos[1],
-			vArray[i][j].pos[2]);
+			//printf("Position\n X: %f, Y: %f, Z: %f\n", vArray[i][j].pos[0],
+			//vArray[i][j].pos[1],
+			//vArray[i][j].pos[2]);
 
 			//set normal then print it
 			vArray[i][j].normal[0] = FBX.GetMeshVec()[i].vertexData[j].norX;
 			vArray[i][j].normal[1] = FBX.GetMeshVec()[i].vertexData[j].norY;
 			vArray[i][j].normal[2] = FBX.GetMeshVec()[i].vertexData[j].norZ;
-			printf("Normal\n X: %f, Y: %f, Z: %f\n", FBX.GetMeshVec()[i].vertexData[i].norX,
+			/*printf("Normal\n X: %f, Y: %f, Z: %f\n", FBX.GetMeshVec()[i].vertexData[i].norX,
 				FBX.GetMeshVec()[i].vertexData[i].norY,
-				FBX.GetMeshVec()[i].vertexData[i].norZ);
+				FBX.GetMeshVec()[i].vertexData[i].norZ);*/
 
 			//SET UV AND MMMMMGUESS WHAT... PRINT IT
 			vArray[i][j].uv[0] = FBX.GetMeshVec()[i].vertexData[j].u;
 			vArray[i][j].uv[1] = FBX.GetMeshVec()[i].vertexData[j].v;
 
-			printf("UVs\n U: %f, V: %f\n", FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].u,
-				FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].v);
+			//printf("UVs\n U: %f, V: %f\n", FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].u,
+			//	FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].v);
 		}
 
 		for (int j = 0; j < FBX.GetMeshVec()[i].index.size(); j++) //KEEP GOING HERE LOAD VERTEXIAN DATA AND INDEXIES
@@ -114,41 +144,13 @@ void FishBoX::printShit()
 			iArray[i][j].vertexIndex = FBX.GetMeshVec()[i].index[j];
 		}
 	}
-
 }
 
-void FishBoX::listFiles(const char* path)
+
+
+void FishBoX::writeShit(std::string filepath)
 {
-	struct _finddata_t dirFile;
-	long hFile;
-
-	bool gIgnoreHidden = true;
-
-	if ((hFile = _findfirst(path, &dirFile)) != -1)
-	{
-		do
-		{
-			if (!strcmp(dirFile.name, ".")) continue;
-			if (!strcmp(dirFile.name, "..")) continue;
-			if (gIgnoreHidden)
-			{
-				if (dirFile.attrib & _A_HIDDEN) continue;
-				if (dirFile.name[0] == '.') continue;
-			}
-
-			// dirFile.name is the name of the file. Do whatever string comparison 
-			// you want here. Something like:
-			if (strstr(dirFile.name, ".fbx"))
-				printf("found a .txt file: %s", dirFile.name);
-
-		} while (_findnext(hFile, &dirFile) == 0);
-		_findclose(hFile);
-	}
-}
-
-void FishBoX::writeShit()
-{
-	std::ofstream outfile("testBin.FSH", std::ofstream::binary); //filestream
+	std::ofstream outfile(filepath.c_str(), std::ofstream::binary); //filestream
 
 	
 	outfile.write((const char*)&HEADER, sizeof(fileHeader)); //write main header
@@ -163,7 +165,7 @@ void FishBoX::writeShit()
 	}
 	outfile.close();
 
-	writeErrorCheck();
+	//writeErrorCheck();
 }
 
 void FishBoX::writeErrorCheck() //check if written file matches file in memory
@@ -218,5 +220,6 @@ void FishBoX::writeErrorCheck() //check if written file matches file in memory
 	infile.close();
 
 }
+
 
 

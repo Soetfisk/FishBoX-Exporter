@@ -31,11 +31,25 @@ struct MyIndexStruct
 	FbxGeometryElementUV* UVElement;
 };
 
+struct material
+{
+	char materialName[256];
+	char textureFilePath[256];
+	char normalFilePath[256];
+
+	float ambient[3];
+	float diffuse[3];
+	float specular[3];
+	float shinyness;
+};
+
 struct Mesh
 {
+	char materialName[256];
 	std::vector<MyVertexStruct> vertexData;
 	std::vector<int> index;
 };
+
 #pragma endregion structs
 
 class FbxDawg
@@ -50,6 +64,7 @@ private:
 
 private:
 	std::vector<Mesh> MeshVec;
+	std::vector<material> materialVec;
 
 public:
 	FbxDawg();
@@ -68,6 +83,7 @@ public:
 	void bsLoader(FbxMesh * mesh);
 
 	std::vector<Mesh> GetMeshVec();
+	std::vector<material> GetMaterialVec();
 
 	//Core datatypes: FbxSkeleton, eRoot, eLimb, eEffector
 	struct sJoint { //s as in struct :D

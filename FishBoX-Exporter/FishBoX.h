@@ -45,17 +45,6 @@ private:
 	{
 		float pos[3];
 	};
-	struct material
-	{
-		char materialName[256];
-		char textureFilePath[256];
-		char normalFilePath[256];
-
-		float ambient[3];
-		float diffuse[3];
-		float spec[3];
-		float shinyness;
-	};
 	struct directionalLight
 	{
 		float intensity;
@@ -83,7 +72,17 @@ private:
 		float target[3];
 		float upVec[3];
 	};
+	struct material
+	{
+		char materialName[256];
+		char textureFilePath[256];
+		char normalFilePath[256];
 
+		float ambient[3];
+		float diffuse[3];
+		float specular[3];
+		float shinyness;
+	};
 
 public:
 	FishBoX();
@@ -109,11 +108,13 @@ private:
 
 public:
 	void initialize();
+	void initialize(std::string filepath);
+	void test();
 
 private:
-	void listFiles(const char* path);
+
 	void printShit();
-	void writeShit();
+	void writeShit(std::string filepath);
 	void writeErrorCheck();
 };
 

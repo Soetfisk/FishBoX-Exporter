@@ -78,15 +78,12 @@ void FbxDawg::loadModels(const char* filePath)
 		}
 		Fbx_Importer->Destroy();
 	}
-
-	printf("%d meshes loaded\n", MeshVec.size());
 } //end of loader
 
 
 
 std::vector<int> FbxDawg::makeIndexList(std::vector<MyVertexStruct> modelVertexList)
 {
-
 	if (FBXIndexArray != nullptr)
 		delete[] this->FBXIndexArray;
 
@@ -113,12 +110,15 @@ std::vector<int> FbxDawg::makeIndexList(std::vector<MyVertexStruct> modelVertexL
 				modelVertexList[vertex].y == modelVertexList[other].y &&
 				modelVertexList[vertex].z == modelVertexList[other].z)
 			{
-				FBXIndexArray[other] = FBXIndexArray[vertex]; //Remove that index and replace with earlier.
+			
+				FBXIndexArray[other] = FBXIndexArray[vertex]; 
+				//Remove that index and replace with earlier.
 			}
 		}//printf("%d\n", FBXIndexArray[vertex]); //Compared with all other.
 
 	}//All vertexes have been compared
 
+	
 	//convert to vector for reasons
 	std::vector<int> indexVec;
 	indexVec.resize(sizeOfFBXIndexArray);
@@ -148,7 +148,7 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 		this->bsLoader(mesh);
 
 	Mesh tempMesh;
-	tempMesh.vertexData.resize(mesh->GetPolygonCount() * 3);
+	//tempMesh.vertexData.resize(mesh->GetPolygonCount() * 3);
 
 	std::vector<MyIndexStruct> indexData; indexData.resize(mesh->GetPolygonCount() * 3);
 	//std::vector<MyVertexStruct> vertData; vertData.resize(mesh->GetPolygonCount() * 3);
@@ -163,14 +163,53 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 
 
 	//>>>>>>>>>Texture filepath<<<<<<<<<<<<<<<
-	int material_Count = mesh->GetSrcObjectCount<FbxSurfaceMaterial>();
+	//int material_Count = mesh->GetSrcObjectCount<FbxSurfaceMaterial>();
 	int matCount = FbxChildNode->GetMaterialCount();
 	for (int m = 0; m < matCount; m++)//.. for every material attached to the mesh
 	{
-		FbxSurfaceMaterial* material = FbxChildNode->GetMaterial(m);
-		if (material)//.. if material
+		material tempMat;
+		FbxSurfaceMaterial* materialRead = FbxChildNode->GetMaterial(m);
+		if (materialRead)//.. if material
 		{
-			FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+			 // make temp material struct for later pushback
+			FbxPropertyT<FbxDouble3> double3;
+			FbxPropertyT<FbxDouble> double1;
+
+			std::string name = materialRead->GetNameOnly();
+			strncpy_s(tempMat.materialName, name.c_str(), sizeof(tempMat.materialName));
+			strncpy_s(tempMesh.materialName, name.c_str(), sizeof(tempMesh.materialName));
+
+			
+			if (materialRead->GetClassId().Is(FbxSurfacePhong::ClassId))
+			{
+				double3 = ((FbxSurfacePhong *)materialRead)->Ambient;
+				tempMat.ambient[0] = double3.Get()[0]; tempMat.ambient[1] = double3.Get()[1]; tempMat.ambient[2] = double3.Get()[2];
+				//printf("\n%f, %f, %f\n", tempMat.ambient[0], tempMat.ambient[1], tempMat.ambient[2]);
+
+				double3 = ((FbxSurfacePhong *)materialRead)->Specular;
+				tempMat.specular[0] = double3.Get()[0]; tempMat.specular[1] = double3.Get()[1]; tempMat.specular[2] = double3.Get()[2];
+				//printf("\n%f, %f, %f\n", tempMat.specular[0], tempMat.specular[1], tempMat.specular[2]);
+
+				double3 = ((FbxSurfacePhong *)materialRead)->Diffuse;
+				tempMat.diffuse[0] = double3.Get()[0]; tempMat.diffuse[1] = double3.Get()[1]; tempMat.diffuse[2] = double3.Get()[2];
+				//printf("\n%f, %f, %f\n", tempMat.diffuse[0], tempMat.diffuse[1], tempMat.diffuse[2]);
+
+				double1 = ((FbxSurfacePhong *)materialRead)->Shininess;
+				tempMat.shinyness = double1.Get();
+				//printf("\n%f\n", tempMat.shinyness);
+			}
+			else if (materialRead->GetClassId().Is(FbxSurfaceLambert::ClassId))
+			{
+				double3 = ((FbxSurfacePhong *)materialRead)->Ambient;
+				tempMat.ambient[0] = double3.Get()[0]; tempMat.ambient[1] = double3.Get()[1]; tempMat.ambient[2] = double3.Get()[2];
+				//printf("\n%f, %f, %f\n", tempMat.ambient[0], tempMat.ambient[1], tempMat.ambient[2]);
+
+				double3 = ((FbxSurfacePhong *)materialRead)->Diffuse;
+				tempMat.diffuse[0] = double3.Get()[0]; tempMat.diffuse[1] = double3.Get()[1]; tempMat.diffuse[2] = double3.Get()[2];
+				//printf("\n%f, %f, %f\n", tempMat.diffuse[0], tempMat.diffuse[1], tempMat.diffuse[2]);
+			}
+
+			FbxProperty prop = materialRead->FindProperty(FbxSurfaceMaterial::sDiffuse);
 			int texture_Count = prop.GetSrcObjectCount<FbxTexture>();
 			for (int i = 0; i < texture_Count; i++)// how many texturefiles attached to the material
 			{
@@ -179,11 +218,18 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 				wchar_t* wideName;
 				FbxUTF8ToWC(((const FbxFileTexture*)texture)->GetFileName(), wideName);
 
+				std::string filepath = ((const FbxFileTexture*)texture)->GetFileName();
+
 				textureFilepath = wideName;
+
+				strncpy_s(tempMat.textureFilePath, filepath.c_str(), sizeof(tempMat.textureFilePath));
+
+				printf("%s", tempMat.textureFilePath);
 
 				FbxFree(wideName);
 			}
 		}
+		materialVec.push_back(tempMat);
 	}
 
 #pragma region >>ASSEMBLY OF VERTEXDATA<<
@@ -194,24 +240,24 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 
 	Vertices = mesh->GetControlPoints();
 
-	for (int i = 0; i < indexData.size(); i++) // DOUBVLES THE CUBE FOR SOME REASON
+	for (int i = 0; i < indexData.size(); i++)
 	{
 		//printf("pos %d nor %d uv %d\n", indexData[i].posIndex, indexData[i].norIndex, indexData[i].uvIndex);
 		FbxVector4 normals = mesh->GetElementNormal()->GetDirectArray().GetAt(indexData[i].norIndex);
 		tempVertex.norX = normals[0];
 		tempVertex.norY = normals[1];
-		tempVertex.norZ = (-1)*(normals[2]);
+		tempVertex.norZ = (normals[2]);
 
 		tempVertex.x = (float)Vertices[indexData[i].posIndex].mData[0];
 		tempVertex.y = (float)Vertices[indexData[i].posIndex].mData[1];
-		tempVertex.z = -1 * ((float)Vertices[indexData[i].posIndex].mData[2]);
+		tempVertex.z = ((float)Vertices[indexData[i].posIndex].mData[2]);
 
 
 		FbxVector2 UVValue = indexData[i].UVElement->GetDirectArray().GetAt(indexData[i].uvIndex);
 		tempVertex.u = UVValue.mData[0];
-		tempVertex.v = 1 - UVValue.mData[1];
+		tempVertex.v = UVValue.mData[1];
 
-		tempMesh.vertexData[i] = tempVertex;
+		tempMesh.vertexData.push_back(tempVertex);
 	}
 
 	for (int j = 0; j < bsVert.size(); j++)
@@ -247,7 +293,7 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 	//>>>>>>>CREATING THE MAP OF CONTROL POINTS<<<<<<<<<
 	//________________________________________________
 	makeControlPointMap(mesh);//<---------------------
-							  //________________________________________________
+	//________________________________________________
 
 }
 void FbxDawg::processVertex(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, std::vector<MyIndexStruct>& indexData, const int * offsets)
@@ -266,7 +312,6 @@ void FbxDawg::processVertex(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData
 		}
 	}
 #pragma endregion >>VERTEX POSITION<<
-
 }
 void FbxDawg::processNormals(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, std::vector<MyIndexStruct>& indexData, const int * offsets)
 {
@@ -325,7 +370,6 @@ void FbxDawg::processNormals(FbxMesh* mesh, std::vector<MyVertexStruct>& vertDat
 				indexData[polygonIndex * 3 + offsets[i]].norIndex = normalIndex;
 				indexByPolygonVertex++;
 			}
-
 		}
 	}
 #pragma endregion >> NORMALS <<
@@ -656,6 +700,11 @@ void FbxDawg::bsLoader(FbxMesh * mesh)
 std::vector<Mesh> FbxDawg::GetMeshVec()
 {
 	return MeshVec;
+}
+
+std::vector<material> FbxDawg::GetMaterialVec()
+{
+	return materialVec;
 }
 
 
