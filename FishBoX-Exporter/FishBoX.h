@@ -91,6 +91,7 @@ public:
 private:
 	FbxDawg FBX;
 	fileHeader HEADER;
+	std::string newfilename;
 
 	std::vector<std::string> texVector;
 	mesh * meArray;

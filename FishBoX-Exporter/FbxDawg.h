@@ -65,7 +65,8 @@ private:
 private:
 	std::vector<Mesh> MeshVec;
 	std::vector<material> materialVec;
-
+	std::vector<std::string> textureVec;
+	std::vector<std::string> matNameVec;
 public:
 	FbxDawg();
 	~FbxDawg();
@@ -84,6 +85,7 @@ public:
 
 	std::vector<Mesh> GetMeshVec();
 	std::vector<material> GetMaterialVec();
+	
 
 	//Core datatypes: FbxSkeleton, eRoot, eLimb, eEffector
 	struct sJoint { //s as in struct :D
@@ -122,6 +124,7 @@ public:
 	std::vector<MyBSposStruct> blendShapes;
 	std::vector<MyVertexStruct> modelVertexList;
 	std::vector<FbxVector4 *> bsVert;
+	
 
 };
 #endif

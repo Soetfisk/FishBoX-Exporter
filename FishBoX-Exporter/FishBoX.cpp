@@ -47,7 +47,7 @@ void FishBoX::initialize(std::string filepath)
 		filepath.replace(len - 1, 1, "");
 	}
 
-	std::string newfilename = filepath.substr(0, filepath.find_last_of('.')) + ".FSH";
+	newfilename = filepath.substr(0, filepath.find_last_of('.')) + ".FSH";
 
 	printShit();
 	writeShit(newfilename.c_str());
@@ -147,16 +147,36 @@ void FishBoX::printShit()
 	for (int  i = 0; i < HEADER.materialCount; i++)
 	{
 		
-		if (!(std::find(texVector.begin(), texVector.end(), FBX.GetMaterialVec()[i].textureFilePath) != texVector.end())) //check if we have the texture allready
+		if (!(std::find(texVector.begin(), texVector.end(), FBX.GetMaterialVec()[i].textureFilePath) != texVector.end())) //check if we have the texture filepath already
 			texVector.push_back(FBX.GetMaterialVec()[i].textureFilePath); //if not, append it
 
-		printf("\n\nMATERIAL %d: %s", i, FBX.GetMaterialVec()[i].materialName);
-		printf("\nTexture: %s", FBX.GetMaterialVec()[i].textureFilePath); 
-		printf("\nNormal map: NONE"); //std::string normalpath = "NONE"; strcpy_s(maArray[i].normalFilePath, normalpath.c_str(), sizeof(normalpath));
-		printf("\nAmbient: %f, %f, %f", FBX.GetMaterialVec()[i].ambient[0], FBX.GetMaterialVec()[i].ambient[1], FBX.GetMaterialVec()[i].ambient[2]);
-		printf("\nDiffuse: %f, %f, %f", FBX.GetMaterialVec()[i].diffuse[0], FBX.GetMaterialVec()[i].diffuse[1], FBX.GetMaterialVec()[i].diffuse[2]);
-		printf("\nSpecular: %f, %f, %f", FBX.GetMaterialVec()[i].specular[0], FBX.GetMaterialVec()[i].specular[1], FBX.GetMaterialVec()[i].specular[2]);
-		printf("\nShinyness: %f", FBX.GetMaterialVec()[i].shinyness);
+		//read material data and print it
+		strncpy_s(maArray[i].materialName, FBX.GetMaterialVec()[i].materialName, sizeof(FBX.GetMaterialVec()[i].materialName));
+		printf("\n\nMATERIAL %d: %s", i, maArray[i].materialName);
+
+		strncpy_s(maArray[i].textureFilePath, FBX.GetMaterialVec()[i].textureFilePath, sizeof(FBX.GetMaterialVec()[i].textureFilePath));
+		printf("\nTexture: %s", maArray[i].textureFilePath);
+
+		strncpy_s(maArray[i].normalFilePath, FBX.GetMaterialVec()[i].normalFilePath, sizeof(FBX.GetMaterialVec()[i].normalFilePath));
+		printf("\nNormal map: %s", maArray[i].normalFilePath);
+
+		maArray[i].ambient[0] = FBX.GetMaterialVec()[i].ambient[0];
+		maArray[i].ambient[1] = FBX.GetMaterialVec()[i].ambient[1];
+		maArray[i].ambient[2] = FBX.GetMaterialVec()[i].ambient[2];
+		printf("\nAmbient: %f, %f, %f", maArray[i].ambient[0], maArray[i].ambient[1], maArray[i].ambient[2]);
+
+		maArray[i].diffuse[0] = FBX.GetMaterialVec()[i].diffuse[0];
+		maArray[i].diffuse[1] = FBX.GetMaterialVec()[i].diffuse[1];
+		maArray[i].diffuse[2] = FBX.GetMaterialVec()[i].diffuse[2];
+		printf("\ndiffuse: %f, %f, %f", maArray[i].diffuse[0], maArray[i].diffuse[1], maArray[i].diffuse[2]);
+
+		maArray[i].specular[0] = FBX.GetMaterialVec()[i].specular[0];
+		maArray[i].specular[1] = FBX.GetMaterialVec()[i].specular[1];
+		maArray[i].specular[2] = FBX.GetMaterialVec()[i].specular[2];
+		printf("\nspecular: %f, %f, %f", maArray[i].specular[0], maArray[i].specular[1], maArray[i].specular[2]);
+		
+		maArray[i].shinyness = FBX.GetMaterialVec()[i].shinyness;
+		printf("\nShinyness: %f", maArray[i].shinyness);
 
 
 	}
@@ -181,7 +201,7 @@ void FishBoX::writeShit(std::string filepath)
 	}
 	outfile.close();
 
-	//writeErrorCheck();
+	writeErrorCheck();
 }
 
 void FishBoX::writeErrorCheck() //check if written file matches file in memory
@@ -191,7 +211,7 @@ void FishBoX::writeErrorCheck() //check if written file matches file in memory
 	vertexData ** tVertex;
 	index ** tIndex;
 
-	std::ifstream infile("testBin.FSH", std::ifstream::binary);
+	std::ifstream infile(newfilename, std::ifstream::binary);
 
 	infile.read((char*)&tHEADER, sizeof(fileHeader));
 
@@ -209,27 +229,46 @@ void FishBoX::writeErrorCheck() //check if written file matches file in memory
 
 	for (int i = 0; i < tHEADER.meshCount; i++) //mesh loop
 	{
+		int result;
 		infile.read((char*)&tMesh[i], sizeof(mesh));
 
 		tVertex[i] = new vertexData[tMesh[i].vertexCount];
 		tIndex[i] = new index[tMesh[i].indexCount];
 
-		printf("\n\nMesh: %d", (i + 1));
-		printf("\nMaterialName: %c%c%c%c", tMesh[i].materialName[0], tMesh[i].materialName[1], tMesh[i].materialName[2], tMesh[i].materialName[3]); //TEMP
-		printf("\n\nVertices: %d", tMesh[i].vertexCount);
-		printf("\nBlendShapes: %d", tMesh[i].blendshapesCount);
-		printf("\nIndices: %d", tMesh[i].indexCount);
+		//printf("\n\nMesh: %d", (i + 1));
+		//printf("\nMaterialName: %c%c%c%c", tMesh[i].materialName[0], tMesh[i].materialName[1], tMesh[i].materialName[2], tMesh[i].materialName[3]); //TEMP
+		//printf("\n\nVertices: %d", tMesh[i].vertexCount);
+		//printf("\nBlendShapes: %d", tMesh[i].blendshapesCount);
+		//printf("\nIndices: %d", tMesh[i].indexCount);
 
 		infile.read((char*)tVertex[i], sizeof(vertexData) * tMesh[i].vertexCount);
 		infile.read((char*)tIndex[i], sizeof(index) * tMesh[i].indexCount);
 
-		for (int j = 0; j < tMesh[i].vertexCount; j++)
-		{
-			printf("\n%f, %f, %f", tVertex[i][j].pos[0], tVertex[i][j].pos[1], tVertex[i][j].pos[2]);
-		}
+		//for (int j = 0; j < tMesh[i].vertexCount; j++)
+		//{
+		//	printf("\n%f, %f, %f", tVertex[i][j].pos[0], tVertex[i][j].pos[1], tVertex[i][j].pos[2]);
+		//}
 
-		int result = memcmp(tVertex[i], vArray[i], tMesh[i].vertexCount*sizeof(vertexData));
-		printf("\nresult: %d\n", result);
+		printf("\nMESH %d ERROR CHECK:" , i);
+		result = memcmp(&tMesh[i], &meArray[i], sizeof(mesh));
+		printf("\nMesh data error check result: ");
+		if (result == 0)
+			printf("%s", "SAFE");
+		else printf("%s", "FAILED");
+
+		result = memcmp(tVertex[i], vArray[i], tMesh[i].vertexCount*sizeof(vertexData));
+		printf("\nVertex error check result: ");
+		if (result == 0)
+			printf("%s", "SAFE");
+		else printf("%s", "FAILED");
+
+		result = memcmp(tIndex[i], iArray[i], tMesh[i].indexCount*sizeof(index));
+		printf("\nIndex error check result: ");
+		if (result == 0)
+			printf("%s", "SAFE");
+		else printf("%s", "FAILED");
+
+		printf("\n");
 
 	}
 

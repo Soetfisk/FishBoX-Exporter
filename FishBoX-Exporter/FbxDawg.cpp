@@ -167,15 +167,21 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 	int matCount = FbxChildNode->GetMaterialCount();
 	for (int m = 0; m < matCount; m++)//.. for every material attached to the mesh
 	{
-		material tempMat;
+		material tempMat; // make temp material struct for later pushback
 		FbxSurfaceMaterial* materialRead = FbxChildNode->GetMaterial(m);
 		if (materialRead)//.. if material
 		{
-			 // make temp material struct for later pushback
+			std::string name = materialRead->GetNameOnly();
+			if (!(std::find(matNameVec.begin(), matNameVec.end(), name) != matNameVec.end())) //check if we have the material already
+				matNameVec.push_back(name);
+			else continue;
+			
 			FbxPropertyT<FbxDouble3> double3;
 			FbxPropertyT<FbxDouble> double1;
 
-			std::string name = materialRead->GetNameOnly();
+			
+
+
 			strncpy_s(tempMat.materialName, name.c_str(), sizeof(tempMat.materialName));
 			strncpy_s(tempMesh.materialName, name.c_str(), sizeof(tempMesh.materialName));
 
@@ -219,12 +225,11 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 				FbxUTF8ToWC(((const FbxFileTexture*)texture)->GetFileName(), wideName);
 
 				std::string filepath = ((const FbxFileTexture*)texture)->GetFileName();
-
 				textureFilepath = wideName;
 
+				std::string normalpath = "NONE";
 				strncpy_s(tempMat.textureFilePath, filepath.c_str(), sizeof(tempMat.textureFilePath));
-
-				printf("%s", tempMat.textureFilePath);
+				strncpy_s(tempMat.normalFilePath, normalpath.c_str(), sizeof(tempMat.normalFilePath));
 
 				FbxFree(wideName);
 			}
