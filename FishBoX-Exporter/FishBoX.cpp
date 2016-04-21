@@ -10,7 +10,7 @@ FishBoX::~FishBoX()
 	
 }
 
-void FishBoX::initialize()
+void FishBoX::initialize() //DEPRICATED
 {
 	FBX.loadModels("./tempfish.fbx");
 
@@ -143,6 +143,22 @@ void FishBoX::printShit()
 			// SET GOD DAMNED INDIIICEEEEES!½
 			iArray[i][j].vertexIndex = FBX.GetMeshVec()[i].index[j];
 		}
+	}
+	for (int  i = 0; i < HEADER.materialCount; i++)
+	{
+		
+		if (!(std::find(texVector.begin(), texVector.end(), FBX.GetMaterialVec()[i].textureFilePath) != texVector.end())) //check if we have the texture allready
+			texVector.push_back(FBX.GetMaterialVec()[i].textureFilePath); //if not, append it
+
+		printf("\n\nMATERIAL %d: %s", i, FBX.GetMaterialVec()[i].materialName);
+		printf("\nTexture: %s", FBX.GetMaterialVec()[i].textureFilePath); 
+		printf("\nNormal map: NONE"); //std::string normalpath = "NONE"; strcpy_s(maArray[i].normalFilePath, normalpath.c_str(), sizeof(normalpath));
+		printf("\nAmbient: %f, %f, %f", FBX.GetMaterialVec()[i].ambient[0], FBX.GetMaterialVec()[i].ambient[1], FBX.GetMaterialVec()[i].ambient[2]);
+		printf("\nDiffuse: %f, %f, %f", FBX.GetMaterialVec()[i].diffuse[0], FBX.GetMaterialVec()[i].diffuse[1], FBX.GetMaterialVec()[i].diffuse[2]);
+		printf("\nSpecular: %f, %f, %f", FBX.GetMaterialVec()[i].specular[0], FBX.GetMaterialVec()[i].specular[1], FBX.GetMaterialVec()[i].specular[2]);
+		printf("\nShinyness: %f", FBX.GetMaterialVec()[i].shinyness);
+
+
 	}
 }
 

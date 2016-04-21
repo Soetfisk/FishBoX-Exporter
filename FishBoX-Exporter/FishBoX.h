@@ -92,7 +92,7 @@ private:
 	FbxDawg FBX;
 	fileHeader HEADER;
 
-
+	std::vector<std::string> texVector;
 	mesh * meArray;
 	material * maArray;
 	directionalLight * dlArray;
@@ -101,9 +101,11 @@ private:
 
 	vertexData ** vArray;
 	index ** iArray;
+	
 
 	int fbxFileCount;
 	std::string * fbxNames;
+
 
 
 public:
