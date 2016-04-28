@@ -171,7 +171,9 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 		FbxSurfaceMaterial* materialRead = FbxChildNode->GetMaterial(m);
 		if (materialRead)//.. if material
 		{
+			
 			std::string name = materialRead->GetNameOnly();
+			strncpy_s(tempMesh.materialName, name.c_str(), sizeof(tempMesh.materialName));
 			if (!(std::find(matNameVec.begin(), matNameVec.end(), name) != matNameVec.end())) //check if we have the material already
 				matNameVec.push_back(name);
 			else continue;
@@ -260,7 +262,7 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 
 		FbxVector2 UVValue = indexData[i].UVElement->GetDirectArray().GetAt(indexData[i].uvIndex);
 		tempVertex.u = UVValue.mData[0];
-		tempVertex.v = UVValue.mData[1];
+		tempVertex.v = 1 - UVValue.mData[1];
 
 		tempMesh.vertexData.push_back(tempVertex);
 	}

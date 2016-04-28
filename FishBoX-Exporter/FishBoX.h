@@ -93,7 +93,8 @@ private:
 	fileHeader HEADER;
 	std::string newfilename;
 
-	std::vector<std::string> texVector;
+	std::vector<std::string> texVector; //old filepaths
+	std::vector<std::string> newTexVector; //new filepaths
 	mesh * meArray;
 	material * maArray;
 	directionalLight * dlArray;

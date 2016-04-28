@@ -146,15 +146,24 @@ void FishBoX::printShit()
 	}
 	for (int  i = 0; i < HEADER.materialCount; i++)
 	{
-		
-		if (!(std::find(texVector.begin(), texVector.end(), FBX.GetMaterialVec()[i].textureFilePath) != texVector.end())) //check if we have the texture filepath already
-			texVector.push_back(FBX.GetMaterialVec()[i].textureFilePath); //if not, append it
+		std::string tempTexFP;
 
+		if (!(std::find(texVector.begin(), texVector.end(), FBX.GetMaterialVec()[i].textureFilePath) != texVector.end()))
+		{//check if we have the texture filepath already
+			texVector.push_back(FBX.GetMaterialVec()[i].textureFilePath); //if not, append it
+			tempTexFP = FBX.GetMaterialVec()[i].textureFilePath;
+			tempTexFP = "Textures" + tempTexFP.substr(tempTexFP.find_last_of('/'));
+			tempTexFP = tempTexFP.substr(0, tempTexFP.find_last_of('.')) + ".FST";
+			newTexVector.push_back(tempTexFP);
+		}
 		//read material data and print it
 		strncpy_s(maArray[i].materialName, FBX.GetMaterialVec()[i].materialName, sizeof(FBX.GetMaterialVec()[i].materialName));
 		printf("\n\nMATERIAL %d: %s", i, maArray[i].materialName);
 
-		strncpy_s(maArray[i].textureFilePath, FBX.GetMaterialVec()[i].textureFilePath, sizeof(FBX.GetMaterialVec()[i].textureFilePath));
+		//format a string for the new texture filepath and name
+
+
+		strncpy_s(maArray[i].textureFilePath, tempTexFP.c_str(), sizeof(maArray[i].textureFilePath));
 		printf("\nTexture: %s", maArray[i].textureFilePath);
 
 		strncpy_s(maArray[i].normalFilePath, FBX.GetMaterialVec()[i].normalFilePath, sizeof(FBX.GetMaterialVec()[i].normalFilePath));
@@ -199,33 +208,72 @@ void FishBoX::writeShit(std::string filepath)
 		outfile.write((const char*)vArray[i], sizeof(vertexData) * meArray[i].vertexCount);
 		outfile.write((const char*)iArray[i], sizeof(index) * meArray[i].indexCount);
 	}
+	for (int i = 0; i < HEADER.materialCount; i++)
+	{
+		outfile.write((const char*)&maArray[i], sizeof(material));
+	}
 	outfile.close();
+	
+	for (int i = 0; i < texVector.size(); i++)
+	{
+		long size = 0;
 
-	writeErrorCheck();
+		std::ifstream texIn(texVector.at(i).c_str(), std::ofstream::binary);
+
+		std::ofstream texOut(newTexVector.at(i).c_str(), std::ofstream::binary);
+		
+		texIn.seekg(0, texIn.end);
+		size = texIn.tellg();
+		texIn.seekg(0);
+
+		char* buffer = new char[size];
+
+		texIn.read(buffer, size);
+
+		//texOut.write((char*)&size, sizeof(long)); 
+		texOut.write(buffer, size);
+
+		delete[] buffer;
+
+		texOut.close();
+		texIn.close();
+	}
+
+
+	//writeErrorCheck();
 }
 
 void FishBoX::writeErrorCheck() //check if written file matches file in memory
 {
 	fileHeader tHEADER;
 	mesh * tMesh;
+	material * tMaterial;
 	vertexData ** tVertex;
 	index ** tIndex;
+	
 
 	std::ifstream infile(newfilename, std::ifstream::binary);
 
 	infile.read((char*)&tHEADER, sizeof(fileHeader));
 
-	printf("\nHEADER\n");
-	printf("Meshes: %d\n", tHEADER.meshCount);
-	printf("Materials %d\n", tHEADER.materialCount);
-	printf("Directional Lights: %d\n", tHEADER.directionalLightCount);
-	printf("Point Lights: %d\n", tHEADER.pointLightCount);
-	printf("Area Lights: %d\n", tHEADER.areaLightCount);
-	printf("Cameras: %d\n", tHEADER.cameraCount);
-
 	tMesh = new mesh[tHEADER.meshCount];
+	tMaterial = new material[tHEADER.materialCount];
 	tVertex = new vertexData*[tHEADER.meshCount];
 	tIndex = new index*[tHEADER.meshCount];
+	
+
+	int result;
+
+	printf("\n\n\n### ERROR CHECKING ###\n");
+
+	printf("\nFILEHEADER ERROR CHECK:");
+	result = memcmp(&tHEADER, &HEADER, sizeof(fileHeader));
+	printf("\nFileheader data error check result: ");
+	if (result == 0)
+		printf("%s", "SAFE");
+	else printf("%s", "FAILED");
+
+	printf("\n");
 
 	for (int i = 0; i < tHEADER.meshCount; i++) //mesh loop
 	{
@@ -271,9 +319,7 @@ void FishBoX::writeErrorCheck() //check if written file matches file in memory
 		printf("\n");
 
 	}
-
 	infile.close();
-
 }
 
 

@@ -45,7 +45,7 @@ int main()
 	run();
 	
 
-	FishBoX fishbox;
+	//FishBoX fishbox;
 
 	
 
