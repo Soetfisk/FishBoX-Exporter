@@ -80,6 +80,7 @@ void FishBoX::printShit()
 	
 	vArray = new vertexData*[HEADER.meshCount];
 	iArray = new index*[HEADER.meshCount];
+	bsArray = new blendShape*[HEADER.meshCount];
 
 
 	for (int i = 0; i < HEADER.meshCount; i++)
@@ -88,15 +89,15 @@ void FishBoX::printShit()
 		printf("\n\nMesh: %d", (i + 1));
 
 		//set material name then print it
-		strncpy_s(meArray[i].materialName, FBX.GetMeshVec()[i].materialName, sizeof(FBX.GetMeshVec()[i].materialName)); //TEMP
-		printf("\nMaterialName: %s", meArray[i].materialName); //TEMP
+		strncpy_s(meArray[i].materialName, FBX.GetMeshVec()[i].materialName, sizeof(FBX.GetMeshVec()[i].materialName));
+		printf("\nMaterialName: %s", meArray[i].materialName); 
 		
 		//set vertexcount then print it
 		meArray[i].vertexCount = FBX.GetMeshVec()[i].vertexData.size();
 		printf("\nVertices: %d", FBX.GetMeshVec()[i].vertexData.size());
 
 		//set blendshapeCount then print it
-		meArray[i].blendshapesCount = 0; //TEMP
+		meArray[i].blendshapesCount = FBX.GetBSCount()[i];
 		printf("\nBlendShapes: %d", meArray[i].blendshapesCount);
 
 		//set indexCount then print it
@@ -107,7 +108,8 @@ void FishBoX::printShit()
 		vArray[i] = new vertexData[meArray[i].vertexCount];
 		//initialize the current index array
 		iArray[i] = new index[meArray[i].vertexCount];
-		
+		//initialize the current blendShape array
+		bsArray[i] = new blendShape[meArray[i].vertexCount * meArray[i].blendshapesCount];
 
 		for (int j = 0; j < meArray[i].vertexCount; j++) //vertexData
 		{
@@ -136,6 +138,13 @@ void FishBoX::printShit()
 
 			//printf("UVs\n U: %f, V: %f\n", FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].u,
 			//	FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].v);
+			for (int k = 0; k < meArray[i].blendshapesCount; k++)
+			{
+				bsArray[i][j + k*meArray[i].vertexCount].pos[0] = FBX.GetBSVec()[i][j + k*meArray[i].vertexCount].x;
+				bsArray[i][j + k*meArray[i].vertexCount].pos[1] = FBX.GetBSVec()[i][j + k*meArray[i].vertexCount].y;
+				bsArray[i][j + k*meArray[i].vertexCount].pos[2] = FBX.GetBSVec()[i][j + k*meArray[i].vertexCount].z;
+			}
+			
 		}
 
 		for (int j = 0; j < FBX.GetMeshVec()[i].index.size(); j++) //KEEP GOING HERE LOAD VERTEXIAN DATA AND INDEXIES

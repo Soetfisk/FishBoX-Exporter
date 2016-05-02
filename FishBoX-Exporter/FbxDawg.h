@@ -63,10 +63,12 @@ private:
 	void processUV(FbxMesh* mesh, std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
 
 private:
+
 	std::vector<Mesh> MeshVec;
 	std::vector<material> materialVec;
 	std::vector<std::string> textureVec;
 	std::vector<std::string> matNameVec;
+	std::vector<int> blenshapeCount;
 public:
 	FbxDawg();
 	~FbxDawg();
@@ -85,6 +87,9 @@ public:
 
 	std::vector<Mesh> GetMeshVec();
 	std::vector<material> GetMaterialVec();
+	std::vector<std::vector<MyBSposStruct>> GetBSVec();
+	std::vector<int> GetBSCount();
+	
 	
 
 	//Core datatypes: FbxSkeleton, eRoot, eLimb, eEffector
@@ -122,6 +127,7 @@ public:
 	sSkeleton skeleton;
 	//std::vector<FbxSkeleton*> skeleton;
 	std::vector<MyBSposStruct> blendShapes;
+	std::vector<std::vector<MyBSposStruct>> blendShapesVec;
 	std::vector<MyVertexStruct> modelVertexList;
 	std::vector<FbxVector4 *> bsVert;
 	

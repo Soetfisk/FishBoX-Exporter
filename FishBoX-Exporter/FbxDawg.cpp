@@ -251,9 +251,9 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 	{
 		//printf("pos %d nor %d uv %d\n", indexData[i].posIndex, indexData[i].norIndex, indexData[i].uvIndex);
 		FbxVector4 normals = mesh->GetElementNormal()->GetDirectArray().GetAt(indexData[i].norIndex);
-		tempVertex.norX = normals[0];
-		tempVertex.norY = normals[1];
-		tempVertex.norZ = (normals[2]);
+		tempVertex.norX = (float)normals[0];
+		tempVertex.norY = (float)normals[1];
+		tempVertex.norZ = (float)(normals[2]);
 
 		tempVertex.x = (float)Vertices[indexData[i].posIndex].mData[0];
 		tempVertex.y = (float)Vertices[indexData[i].posIndex].mData[1];
@@ -261,33 +261,38 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 
 
 		FbxVector2 UVValue = indexData[i].UVElement->GetDirectArray().GetAt(indexData[i].uvIndex);
-		tempVertex.u = UVValue.mData[0];
-		tempVertex.v = 1 - UVValue.mData[1];
+		tempVertex.u = (float)UVValue.mData[0];
+		tempVertex.v = 1 - (float)UVValue.mData[1];
 
 		tempMesh.vertexData.push_back(tempVertex);
 	}
 
 	for (int j = 0; j < bsVert.size(); j++)
-		Vertices = bsVert[j];
-	for (int i = 0; i < indexData.size(); i++)
 	{
+		Vertices = bsVert[j];
+		for (int i = 0; i < indexData.size(); i++)
+		{
 
-		//normals = normalElement->GetDirectArray().GetAt(indexData[i].norIndex);
-		//tempVertex.norX = normals[0];
-		//tempVertex.norY = normals[1];
-		//tempVertex.norZ = (-1)*(normals[2]);
+			//normals = normalElement->GetDirectArray().GetAt(indexData[i].norIndex);
+			//tempVertex.norX = normals[0];
+			//tempVertex.norY = normals[1];
+			//tempVertex.norZ = (-1)*(normals[2]);
 
-		tempBlendShape.x = (float)Vertices[indexData[i].posIndex].mData[0];
-		tempBlendShape.y = (float)Vertices[indexData[i].posIndex].mData[1];
-		tempBlendShape.z = -1 * ((float)Vertices[indexData[i].posIndex].mData[2]);
+			tempBlendShape.x = (float)Vertices[indexData[i].posIndex].mData[0];
+			tempBlendShape.y = (float)Vertices[indexData[i].posIndex].mData[1];
+			tempBlendShape.z = (float)Vertices[indexData[i].posIndex].mData[2];
 
-		//FbxVector2 UVValue = indexData[i].UVElement->GetDirectArray().GetAt(indexData[i].uvIndex);
-		//tempVertex.u = UVValue.mData[0];
-		//tempVertex.v = 1 - UVValue.mData[1];
+			//FbxVector2 UVValue = indexData[i].UVElement->GetDirectArray().GetAt(indexData[i].uvIndex);
+			//tempVertex.u = UVValue.mData[0];
+			//tempVertex.v = 1 - UVValue.mData[1];
 
-		this->blendShapes.push_back(tempBlendShape);
+			this->blendShapes.push_back(tempBlendShape);
+		}
 	}
-	
+	blenshapeCount.push_back(bsVert.size());
+	this->blendShapesVec.push_back(blendShapes);
+	blendShapes.clear();
+	bsVert.clear();
 
 	this->makeIndexList(tempMesh.vertexData);
 
@@ -712,6 +717,16 @@ std::vector<Mesh> FbxDawg::GetMeshVec()
 std::vector<material> FbxDawg::GetMaterialVec()
 {
 	return materialVec;
+}
+
+std::vector<std::vector<MyBSposStruct>> FbxDawg::GetBSVec()
+{
+	return blendShapesVec;
+}
+
+std::vector<int> FbxDawg::GetBSCount()
+{
+	return blenshapeCount;
 }
 
 

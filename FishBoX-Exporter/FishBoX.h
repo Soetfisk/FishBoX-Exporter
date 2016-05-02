@@ -103,6 +103,7 @@ private:
 
 	vertexData ** vArray;
 	index ** iArray;
+	blendShape ** bsArray;
 	
 
 	int fbxFileCount;
