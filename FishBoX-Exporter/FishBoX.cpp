@@ -216,6 +216,7 @@ void FishBoX::writeShit(std::string filepath)
 
 		outfile.write((const char*)vArray[i], sizeof(vertexData) * meArray[i].vertexCount);
 		outfile.write((const char*)iArray[i], sizeof(index) * meArray[i].indexCount);
+		outfile.write((const char*)bsArray[i], sizeof(blendShape) * meArray[i].vertexCount * meArray[i].blendshapesCount);
 	}
 	for (int i = 0; i < HEADER.materialCount; i++)
 	{

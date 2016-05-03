@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <io.h>
 
+//OpenGL Includes
+#include <glm\glm.hpp>
 
 
 class FishBoX
@@ -33,9 +35,9 @@ private:
 	};
 	struct vertexData
 	{
-		float pos[3];
-		float normal[3];
-		float uv[2];
+		glm::vec3 pos;
+		glm::vec3 normal;
+		glm::vec2 uv;
 	};
 	struct index
 	{
@@ -43,7 +45,7 @@ private:
 	};
 	struct blendShape
 	{
-		float pos[3];
+		glm::vec3 pos;
 	};
 	struct directionalLight
 	{
