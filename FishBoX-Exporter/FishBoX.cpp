@@ -80,7 +80,7 @@ void FishBoX::printShit()
 	
 	vArray = new vertexData*[HEADER.meshCount];
 	iArray = new index*[HEADER.meshCount];
-	bsArray = new blendShape*[HEADER.meshCount];
+	bsArray = new blendShape**[HEADER.meshCount];
 
 
 	for (int i = 0; i < HEADER.meshCount; i++)
@@ -109,8 +109,8 @@ void FishBoX::printShit()
 		//initialize the current index array
 		iArray[i] = new index[meArray[i].vertexCount];
 		//initialize the current blendShape array
-		bsArray[i] = new blendShape[meArray[i].vertexCount * meArray[i].blendshapesCount];
-
+		bsArray[i] = new blendShape*[meArray[i].blendshapesCount];
+		printf("\n");
 		for (int j = 0; j < meArray[i].vertexCount; j++) //vertexData
 		{
 
@@ -120,6 +120,11 @@ void FishBoX::printShit()
 			vArray[i][j].pos[1] = FBX.GetMeshVec()[i].vertexData[j].y;
 			vArray[i][j].pos[2] = FBX.GetMeshVec()[i].vertexData[j].z;
 
+
+			if (j == 0)
+				printf("\n Written nonbs vert%d: %f, %f, %f\n\n", j, vArray[i][j].pos[0],
+					vArray[i][j].pos[1],
+					vArray[i][j].pos[2]);
 			//printf("Position\n X: %f, Y: %f, Z: %f\n", vArray[i][j].pos[0],
 			//vArray[i][j].pos[1],
 			//vArray[i][j].pos[2]);
@@ -138,13 +143,42 @@ void FishBoX::printShit()
 
 			//printf("UVs\n U: %f, V: %f\n", FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].u,
 			//	FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].v);
-			for (int k = 0; k < meArray[i].blendshapesCount; k++)
+			//for (int k = 0; k < meArray[i].blendshapesCount; k++)
+			//{
+			//	bsArray[i][j+k].pos[0] = FBX.GetBSVec()[i][j + k].x;
+			//	bsArray[i][j+k].pos[1] = FBX.GetBSVec()[i][j + k].y;
+			//	bsArray[i][j+k].pos[2] = FBX.GetBSVec()[i][j + k].z;
+
+			//	if (j == 0)
+			//		printf("\n Written bs%d vert%d: %f, %f, %f", k+1, j, bsArray[i][j + k].pos[0], bsArray[i][j + k].pos[1], bsArray[i][j + k].pos[2]);
+			//	if (j == 1)
+			//		printf("\n Written bs%d vert%d: %f, %f, %f", k + 1, j, bsArray[i][j + k].pos[0], bsArray[i][j + k].pos[1], bsArray[i][j + k].pos[2]);
+			//		
+			//	if (j == 2)
+			//		printf("\n Written bs%d vert%d: %f, %f, %f", k + 1, j, bsArray[i][j + k].pos[0], bsArray[i][j + k].pos[1], bsArray[i][j + k].pos[2]);
+			//}		
+			//if (j == 0)
+			//	printf("\n");
+			//if (j == 1)
+			//	printf("\n");
+			//if (j == 2)
+			//	printf("\n");
+		}
+
+		for (int j = 0; j <meArray[i].blendshapesCount; j++)
+		{
+			bsArray[i][j] = new blendShape[meArray[i].vertexCount];
+			for (int k = 0; k < meArray[i].vertexCount; k++)
 			{
-				bsArray[i][j + k*meArray[i].vertexCount].pos[0] = FBX.GetBSVec()[i][j + k*meArray[i].vertexCount].x;
-				bsArray[i][j + k*meArray[i].vertexCount].pos[1] = FBX.GetBSVec()[i][j + k*meArray[i].vertexCount].y;
-				bsArray[i][j + k*meArray[i].vertexCount].pos[2] = FBX.GetBSVec()[i][j + k*meArray[i].vertexCount].z;
+				bsArray[i][j][k].pos[0] = FBX.GetBSVec()[i][j][k].x;
+				bsArray[i][j][k].pos[1] = FBX.GetBSVec()[i][j][k].y;
+				bsArray[i][j][k].pos[2] = FBX.GetBSVec()[i][j][k].z;
+
+				printf("\n Written bs%d: %f, %f, %f", k, bsArray[i][j][k].pos[0], bsArray[i][j][k].pos[1], bsArray[i][j][k].pos[2]);
+
+
 			}
-			
+			printf("\n");
 		}
 
 		for (int j = 0; j < FBX.GetMeshVec()[i].index.size(); j++) //KEEP GOING HERE LOAD VERTEXIAN DATA AND INDEXIES
@@ -216,7 +250,8 @@ void FishBoX::writeShit(std::string filepath)
 
 		outfile.write((const char*)vArray[i], sizeof(vertexData) * meArray[i].vertexCount);
 		outfile.write((const char*)iArray[i], sizeof(index) * meArray[i].indexCount);
-		outfile.write((const char*)bsArray[i], sizeof(blendShape) * meArray[i].vertexCount * meArray[i].blendshapesCount);
+		for (int j = 0; j < meArray[i].blendshapesCount; j++)
+			outfile.write((const char*)bsArray[i][j], sizeof(blendShape) * meArray[i].vertexCount);
 	}
 	for (int i = 0; i < HEADER.materialCount; i++)
 	{

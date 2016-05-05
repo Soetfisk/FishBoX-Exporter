@@ -87,7 +87,7 @@ public:
 
 	std::vector<Mesh> GetMeshVec();
 	std::vector<material> GetMaterialVec();
-	std::vector<std::vector<MyBSposStruct>> GetBSVec();
+	std::vector<std::vector<std::vector<MyBSposStruct>>> GetBSVec();
 	std::vector<int> GetBSCount();
 	
 	
@@ -126,10 +126,11 @@ public:
 	
 	sSkeleton skeleton;
 	//std::vector<FbxSkeleton*> skeleton;
-	std::vector<MyBSposStruct> blendShapes;
+	
 	std::vector<std::vector<MyBSposStruct>> blendShapesVec;
 	std::vector<MyVertexStruct> modelVertexList;
 	std::vector<FbxVector4 *> bsVert;
+	std::vector<std::vector<std::vector<MyBSposStruct>>> currentMeshBlendShapes;
 	
 
 };

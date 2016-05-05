@@ -241,7 +241,6 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 
 #pragma region >>ASSEMBLY OF VERTEXDATA<<
 	MyVertexStruct tempVertex;
-	MyBSposStruct tempBlendShape;
 	MyIndexStruct tempIndex;
 	FbxVector4* Vertices;
 
@@ -267,31 +266,84 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 		tempMesh.vertexData.push_back(tempVertex);
 	}
 
-	for (int j = 0; j < bsVert.size(); j++)
+	//for (int j = 0; j < bsVert.size(); j++)
+	//{
+	//	Vertices = bsVert[j];
+	//	for (int i = 0; i < indexData.size(); i++)
+	//	{
+
+	//		//normals = normalElement->GetDirectArray().GetAt(indexData[i].norIndex);
+	//		//tempVertex.norX = normals[0];
+	//		//tempVertex.norY = normals[1];
+	//		//tempVertex.norZ = (-1)*(normals[2]);
+
+	//		tempBlendShape.x = (float)Vertices[indexData[i].posIndex].mData[0];
+	//		tempBlendShape.y = (float)Vertices[indexData[i].posIndex].mData[1];
+	//		tempBlendShape.z = (float)Vertices[indexData[i].posIndex].mData[2];
+	//		printf("\n%d", i);
+
+	//		if (i == 0)
+	//			printf("\n Read bs%d vert: %f, %f, %f", j + 1, tempBlendShape.x,
+	//				tempBlendShape.y,
+	//				tempBlendShape.z);
+	//		
+	//		if (i == 1)
+	//			printf("\n Read bs%d vert: %f, %f, %f", j + 1, tempBlendShape.x,
+	//				tempBlendShape.y,
+	//				tempBlendShape.z);
+
+	//		if (i == 2)
+	//			printf("\n Read bs%d vert: %f, %f, %f", j + 1, tempBlendShape.x,
+	//				tempBlendShape.y,
+	//				tempBlendShape.z);
+	//			//FbxVector2 UVValue = indexData[i].UVElementempBlendShape.yt->GetDirectArray().GetAt(indexData[i].uvIndex);
+	//		//tempVertex.u = UVValue.mData[0];			tempBlendShape.z
+	//		//tempVertex.v = 1 - UVValue.mData[1];
+
+	//		this->blendShapes.push_back(tempBlendShape);
+	//	}
+	//}
+
+	for (int i = 0; i < bsVert.size(); i++)
 	{
-		Vertices = bsVert[j];
-		for (int i = 0; i < indexData.size(); i++)
+		int counter = 0;
+		std::vector<MyBSposStruct> blendShape;
+		for (int j = 0; j < indexData.size(); j++)
 		{
+			MyBSposStruct tempBlendShapeVert;
+			counter++;
+			tempBlendShapeVert.x = (float)bsVert[i][indexData[j].posIndex].mData[0];
+			tempBlendShapeVert.y = (float)bsVert[i][indexData[j].posIndex].mData[1];
+			tempBlendShapeVert.z = (float)bsVert[i][indexData[j].posIndex].mData[2];
+			//if (i == 0)
+			//	printf("\nRead bs%d vert%d: %f, %f, %f", i + 1, j, tempBlendShapeVert.x, tempBlendShapeVert.y, tempBlendShapeVert.z);
+			//
 
-			//normals = normalElement->GetDirectArray().GetAt(indexData[i].norIndex);
-			//tempVertex.norX = normals[0];
-			//tempVertex.norY = normals[1];
-			//tempVertex.norZ = (-1)*(normals[2]);
+			//if (i == 0 && j == 6)
+			//	printf("\n");
 
-			tempBlendShape.x = (float)Vertices[indexData[i].posIndex].mData[0];
-			tempBlendShape.y = (float)Vertices[indexData[i].posIndex].mData[1];
-			tempBlendShape.z = (float)Vertices[indexData[i].posIndex].mData[2];
+			//if (i == 1)
+			//	printf("\nRead bs%d vert%d: %f, %f, %f", i + 1, j, tempBlendShapeVert.x, tempBlendShapeVert.y, tempBlendShapeVert.z);
 
-			//FbxVector2 UVValue = indexData[i].UVElement->GetDirectArray().GetAt(indexData[i].uvIndex);
-			//tempVertex.u = UVValue.mData[0];
-			//tempVertex.v = 1 - UVValue.mData[1];
+			//if (i == 1 && j == 6)
+			//	printf("\n");
 
-			this->blendShapes.push_back(tempBlendShape);
+			//if (i == 2)
+			//	printf("\nRead bs%d vert%d: %f, %f, %f", i + 1, j, tempBlendShapeVert.x, tempBlendShapeVert.y, tempBlendShapeVert.z);
+
+			//if (i == 2 && j == 6)
+			//	printf("\n");
+
+			blendShape.push_back(tempBlendShapeVert);
 		}
+		printf("\n%d", i);
+		printf("\n%d", counter);
+		this->blendShapesVec.push_back(blendShape);
 	}
+
+	currentMeshBlendShapes.push_back(blendShapesVec);
+	printf("\n");
 	blenshapeCount.push_back(bsVert.size());
-	this->blendShapesVec.push_back(blendShapes);
-	blendShapes.clear();
 	bsVert.clear();
 
 	this->makeIndexList(tempMesh.vertexData);
@@ -475,6 +527,37 @@ void FbxDawg::processUV(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, st
 #pragma endregion >>UV<<
 }
 //for mesh
+void FbxDawg::bsLoader(FbxMesh * mesh)
+{
+	int bShapeCount = mesh->GetDeformerCount(FbxDeformer::eBlendShape);
+
+	if (bShapeCount > 0)
+	{
+		printf("model has %d BlendShapes\n", bShapeCount);
+		for (int bsIndex = 0; bsIndex < bShapeCount; bsIndex++)
+		{
+			FbxBlendShape* lBlendShape = (FbxBlendShape*)mesh->GetDeformer(bsIndex, FbxDeformer::eBlendShape);
+
+			int lBlendShapeChannelCount = lBlendShape->GetBlendShapeChannelCount();
+			printf("bShape has %d BlendShape Channels\n", lBlendShapeChannelCount);
+
+			for (int lChannelIndex = 0; lChannelIndex < lBlendShapeChannelCount; lChannelIndex++)
+			{
+				FbxBlendShapeChannel* lChannel = lBlendShape->GetBlendShapeChannel(lChannelIndex);
+
+				int lShapesCount = lChannel->GetTargetShapeCount();
+
+				for (int lShapeIndex = 0; lShapeIndex < lShapesCount; lShapeIndex++)
+				{
+					FbxShape * lShape = lChannel->GetTargetShape(lShapeIndex);
+					bsVert.push_back(lShape->GetControlPoints());
+
+					//printf("\nRead bs%d vert%d: %f, %f, %f", lChannelIndex, lShapeIndex, bsVert[lShapeIndex][0].mData[0], lShapeIndex, bsVert[lShapeIndex][0].mData[1], lShapeIndex, bsVert[lShapeIndex][0].mData[2]);
+				}
+			}
+		}
+	}
+}
 
 
 
@@ -679,35 +762,6 @@ void FbxDawg::recursiveJointHierarchyTraversal(FbxNode * inNode, int currentInde
 	}
 }
 
-void FbxDawg::bsLoader(FbxMesh * mesh)
-{
-	int bShapeCount = mesh->GetDeformerCount(FbxDeformer::eBlendShape);
-
-	if (bShapeCount > 0)
-	{
-		printf("model has %d BlendShapes\n", bShapeCount);
-		for (int bsIndex = 0; bsIndex < bShapeCount; bsIndex++)
-		{
-			FbxBlendShape* lBlendShape = (FbxBlendShape*)mesh->GetDeformer(bsIndex, FbxDeformer::eBlendShape);
-
-			int lBlendShapeChannelCount = lBlendShape->GetBlendShapeChannelCount();
-			printf("bShape has %d BlendShape Channels\n", lBlendShapeChannelCount);
-
-			for (int lChannelIndex = 0; lChannelIndex < lBlendShapeChannelCount; lChannelIndex++)
-			{
-				FbxBlendShapeChannel* lChannel = lBlendShape->GetBlendShapeChannel(lChannelIndex);
-
-				int lShapesCount = lChannel->GetTargetShapeCount();
-
-				for (int lShapeIndex = 0; lShapeIndex < lShapesCount; lShapeIndex++)
-				{
-					FbxShape * lShape = lChannel->GetTargetShape(lShapeIndex);
-					bsVert.push_back(lShape->GetControlPoints());
-				}
-			}
-		}
-	}
-}
 
 std::vector<Mesh> FbxDawg::GetMeshVec()
 {
@@ -719,9 +773,9 @@ std::vector<material> FbxDawg::GetMaterialVec()
 	return materialVec;
 }
 
-std::vector<std::vector<MyBSposStruct>> FbxDawg::GetBSVec()
+std::vector<std::vector<std::vector<MyBSposStruct>>> FbxDawg::GetBSVec()
 {
-	return blendShapesVec;
+	return currentMeshBlendShapes;
 }
 
 std::vector<int> FbxDawg::GetBSCount()

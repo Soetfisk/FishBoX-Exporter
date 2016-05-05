@@ -105,7 +105,7 @@ private:
 
 	vertexData ** vArray;
 	index ** iArray;
-	blendShape ** bsArray;
+	blendShape *** bsArray;
 	
 
 	int fbxFileCount;
