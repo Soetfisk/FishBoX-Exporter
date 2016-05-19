@@ -61,6 +61,8 @@ private:
 	void processVertex(FbxMesh* mesh , std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
 	void processNormals(FbxMesh* mesh, std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
 	void processUV(FbxMesh* mesh, std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
+	void processCamera(FbxCamera* camera);
+	void PorcessLight(FbxLight* light);
 
 private:
 
