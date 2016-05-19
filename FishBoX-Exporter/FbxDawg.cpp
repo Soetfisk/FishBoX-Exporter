@@ -75,6 +75,10 @@ void FbxDawg::loadModels(const char* filePath)
 
 			if (AttributeType == FbxNodeAttribute::eMesh)// Only meshes allowed to enter check.
 				processMesh(FbxChildNode);
+			if (AttributeType == FbxNodeAttribute::eLight)
+				processLight(FbxChildNode);
+			if (AttributeType == FbxNodeAttribute::eCamera)
+				processCamera(FbxChildNode);
 		}
 		Fbx_Importer->Destroy();
 	}
