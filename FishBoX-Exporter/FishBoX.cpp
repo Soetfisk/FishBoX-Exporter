@@ -229,8 +229,6 @@ void FishBoX::printShit()
 		
 		maArray[i].shinyness = FBX.GetMaterialVec()[i].shinyness;
 		printf("\nShinyness: %f", maArray[i].shinyness);
-
-
 	}
 }
 
@@ -257,6 +255,11 @@ void FishBoX::writeShit(std::string filepath)
 	{
 		outfile.write((const char*)&maArray[i], sizeof(material));
 	}
+
+	//camera write
+
+	//lightwrite
+
 	outfile.close();
 	
 	for (int i = 0; i < texVector.size(); i++)

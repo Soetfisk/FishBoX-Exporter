@@ -76,9 +76,9 @@ void FbxDawg::loadModels(const char* filePath)
 			if (AttributeType == FbxNodeAttribute::eMesh)// Only meshes allowed to enter check.
 				processMesh(FbxChildNode);
 			if (AttributeType == FbxNodeAttribute::eLight)
-				processLight(FbxChildNode);
+				processLight((FbxLight*)FbxChildNode->GetNodeAttribute());
 			if (AttributeType == FbxNodeAttribute::eCamera)
-				processCamera(FbxChildNode);
+				processCamera((FbxCamera*)FbxChildNode->GetNodeAttribute());
 		}
 		Fbx_Importer->Destroy();
 	}
@@ -529,6 +529,33 @@ void FbxDawg::processUV(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, st
 
 
 #pragma endregion >>UV<<
+}
+void FbxDawg::processCamera(FbxCamera * fbxcamera)
+{
+	camera tempCam;
+	tempCam.pos[0] = (float)fbxcamera->Position.Get()[0];
+	tempCam.pos[1] = (float)fbxcamera->Position.Get()[1];
+	tempCam.pos[2] = (float)fbxcamera->Position.Get()[2];
+
+	tempCam.target[0] = (float)fbxcamera->InterestPosition.Get()[0];
+	tempCam.target[1] = (float)fbxcamera->InterestPosition.Get()[1];
+	tempCam.target[2] = (float)fbxcamera->InterestPosition.Get()[2];
+
+	tempCam.upVec[0] = (float)fbxcamera->UpVector.Get()[0];
+	tempCam.upVec[1] = (float)fbxcamera->UpVector.Get()[1];
+	tempCam.upVec[2] = (float)fbxcamera->UpVector.Get()[2];
+
+	tempCam.roll = (float)fbxcamera->Roll.Get();
+	tempCam.farPlane = (float)fbxcamera->FarPlane.Get();
+	tempCam.nearPlane = (float)fbxcamera->NearPlane.Get();
+	tempCam.pixelRatio = (float)fbxcamera->PixelAspectRatio.Get();
+	
+	cameraVec.push_back(tempCam);
+}
+void FbxDawg::processLight(FbxLight * fbxlight)
+{
+
+	
 }
 //for mesh
 void FbxDawg::bsLoader(FbxMesh * mesh)

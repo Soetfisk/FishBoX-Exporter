@@ -50,6 +50,16 @@ struct Mesh
 	std::vector<int> index;
 };
 
+struct camera
+{
+	float pos[3];
+	float roll;
+	float target[3];
+	float upVec[3];
+	float farPlane;
+	float nearPlane;
+	float pixelRatio;
+};
 #pragma endregion structs
 
 class FbxDawg
@@ -61,8 +71,8 @@ private:
 	void processVertex(FbxMesh* mesh , std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
 	void processNormals(FbxMesh* mesh, std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
 	void processUV(FbxMesh* mesh, std::vector<MyVertexStruct> &vertData, std::vector<MyIndexStruct> &indexData, const int * offsets);
-	void processCamera(FbxCamera* camera);
-	void PorcessLight(FbxLight* light);
+	void processCamera(FbxCamera* fbxcamera);
+	void processLight(FbxLight* fbxlight);
 
 private:
 
@@ -71,6 +81,8 @@ private:
 	std::vector<std::string> textureVec;
 	std::vector<std::string> matNameVec;
 	std::vector<int> blenshapeCount;
+	std::vector<camera> cameraVec;
+
 public:
 	FbxDawg();
 	~FbxDawg();

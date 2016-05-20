@@ -70,9 +70,12 @@ private:
 	struct camera
 	{
 		float pos[3];
-		float rotation[3];
+		float roll;
 		float target[3];
 		float upVec[3];
+		float farPlane;
+		float nearPlane;
+		float pixelRatio;
 	};
 	struct material
 	{
