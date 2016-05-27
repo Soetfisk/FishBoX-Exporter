@@ -50,7 +50,7 @@ private:
 	struct directionalLight
 	{
 		float intensity;
-		float lightColor;
+		double lightColor[3];
 		float direction[3];
 	};
 	struct pointLight
@@ -105,6 +105,7 @@ private:
 	directionalLight * dlArray;
 	pointLight * plArray;
 	areaLight *alArray;
+	camera *caArray;
 
 	vertexData ** vArray;
 	index ** iArray;

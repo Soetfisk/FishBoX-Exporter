@@ -160,9 +160,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestFile\TestBox.fbx" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="images\normal_map.jpg" />
     <Image Include="images\sexypicTestTexture.png" />
   </ItemGroup>

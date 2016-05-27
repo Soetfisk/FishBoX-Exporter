@@ -31,10 +31,10 @@ void FishBoX::initialize(std::string filepath)
 
 	HEADER.meshCount = FBX.GetMeshVec().size();
 	HEADER.materialCount = FBX.GetMaterialVec().size();
-	HEADER.directionalLightCount = 0;
+	HEADER.directionalLightCount = FBX.GetDirectionalLightVec().size();
 	HEADER.pointLightCount = 0;
 	HEADER.areaLightCount = 0;
-	HEADER.cameraCount = 0;
+	HEADER.cameraCount = FBX.GetCameraVec().size(); //make function;
 	
 	int len = filepath.length();
 	
@@ -73,7 +73,7 @@ void FishBoX::printShit()
 
 	meArray = new mesh[HEADER.meshCount];
 	maArray = new material[HEADER.materialCount];
-	directionalLight * dlArray = new directionalLight[HEADER.directionalLightCount];
+	
 	pointLight * plArray = new pointLight[HEADER.pointLightCount];
 	areaLight *alArray = new areaLight[HEADER.areaLightCount];
 	
@@ -81,6 +81,8 @@ void FishBoX::printShit()
 	vArray = new vertexData*[HEADER.meshCount];
 	iArray = new index*[HEADER.meshCount];
 	bsArray = new blendShape**[HEADER.meshCount];
+	caArray = new camera[HEADER.cameraCount];
+	dlArray = new directionalLight[HEADER.directionalLightCount];
 
 
 	for (int i = 0; i < HEADER.meshCount; i++)
@@ -104,6 +106,7 @@ void FishBoX::printShit()
 		meArray[i].indexCount = FBX.GetMeshVec()[i].index.size();
 		printf("\nIndices: %d", FBX.GetMeshVec()[i].index.size());
 
+		
 		//initialize the current vertexData array
 		vArray[i] = new vertexData[meArray[i].vertexCount];
 		//initialize the current index array
@@ -230,6 +233,64 @@ void FishBoX::printShit()
 		maArray[i].shinyness = FBX.GetMaterialVec()[i].shinyness;
 		printf("\nShinyness: %f", maArray[i].shinyness);
 	}
+
+	for (size_t i = 0; i < HEADER.directionalLightCount ; i++)
+	{
+		dlArray[i].intensity = FBX.GetDirectionalLightVec()[i].intensity;
+		printf("\n\nDirectionalLightIntensity: %f", dlArray[i].intensity);
+		for (size_t j = 0; j < 3; j++)
+		{
+			dlArray[i].lightColor[j] = FBX.GetDirectionalLightVec()[i].lightColor[j];
+			dlArray[i].direction[j] = FBX.GetDirectionalLightVec()[i].direction[j];
+		}
+		
+
+		printf("\nDirectionalLightColor: %f, %f, %f", dlArray[i].lightColor[0], dlArray[i].lightColor[1], dlArray[i].lightColor[2]);
+		printf("\nDirectionalLightDirection: %f, %f, %f\n", dlArray[i].direction[0], dlArray[i].direction[1], dlArray[i].direction[2]);
+	} 
+
+	//Camera here
+	printf("\n\nCAMERA: ");
+	for (int i = 0; i < HEADER.cameraCount; i++)
+	{
+		caArray[i].pos[0] = FBX.GetCameraVec()[i].pos[0];
+		caArray[i].pos[1] = FBX.GetCameraVec()[i].pos[1];
+		caArray[i].pos[2] = FBX.GetCameraVec()[i].pos[2];
+		for (size_t j = 0; j < 3; j++)
+		{
+			printf("\npos: %f", caArray[i].pos[j]);
+		}
+
+		caArray[i].roll = FBX.GetCameraVec()[i].roll;
+		printf("\nRoll: %f", caArray[i].roll);
+
+		caArray[i].target[0] = FBX.GetCameraVec()[i].target[0];
+		caArray[i].target[1] = FBX.GetCameraVec()[i].target[1];
+		caArray[i].target[2] = FBX.GetCameraVec()[i].target[2];
+		for (size_t j = 0; j < 3; j++)
+		{
+			printf("\ntarget: %f", caArray[i].target[j]);
+		}
+		
+
+		caArray[i].upVec[0] = FBX.GetCameraVec()[i].upVec[0];
+		caArray[i].upVec[1] = FBX.GetCameraVec()[i].upVec[1];
+		caArray[i].upVec[2] = FBX.GetCameraVec()[i].upVec[2];
+		for (size_t j = 0; j < 3; j++)
+		{
+			printf("\nUPVEC: %f", caArray[i].upVec[j]);
+		}
+
+		caArray[i].farPlane = FBX.GetCameraVec()[i].farPlane;
+		caArray[i].nearPlane = FBX.GetCameraVec()[i].nearPlane;
+
+		printf("\nfarPlane: %f", caArray[i].farPlane);
+
+		caArray[i].pixelRatio = FBX.GetCameraVec()[i].pixelRatio;
+
+		printf("\npixelRatio: %f", caArray[i].pixelRatio);
+	}
+
 }
 
 
@@ -257,6 +318,18 @@ void FishBoX::writeShit(std::string filepath)
 	}
 
 	//camera write
+	for (int i = 0; i < HEADER.cameraCount; i++)
+	{
+		outfile.write((const char*)&caArray[i], sizeof(camera));
+	}
+
+	//DirectionalLight write
+	for (int i = 0; i < HEADER.directionalLightCount; i++)
+	{
+		outfile.write((const char*)&dlArray[i], sizeof(directionalLight));
+	}
+
+
 
 	//lightwrite
 

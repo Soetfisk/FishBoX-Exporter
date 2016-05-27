@@ -60,6 +60,14 @@ struct camera
 	float nearPlane;
 	float pixelRatio;
 };
+
+
+struct directionalLight
+{
+	float intensity;
+	float lightColor[3];
+	float direction[3];
+};
 #pragma endregion structs
 
 class FbxDawg
@@ -82,6 +90,8 @@ private:
 	std::vector<std::string> matNameVec;
 	std::vector<int> blenshapeCount;
 	std::vector<camera> cameraVec;
+	std::vector<directionalLight> directionalLightVec;
+	
 
 public:
 	FbxDawg();
@@ -102,7 +112,10 @@ public:
 	std::vector<Mesh> GetMeshVec();
 	std::vector<material> GetMaterialVec();
 	std::vector<std::vector<std::vector<MyBSposStruct>>> GetBSVec();
+	std::vector<camera> GetCameraVec();
+	std::vector<directionalLight> GetDirectionalLightVec();
 	std::vector<int> GetBSCount();
+
 	
 	
 

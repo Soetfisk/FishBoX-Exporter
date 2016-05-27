@@ -79,6 +79,7 @@ void FbxDawg::loadModels(const char* filePath)
 				processLight((FbxLight*)FbxChildNode->GetNodeAttribute());
 			if (AttributeType == FbxNodeAttribute::eCamera)
 				processCamera((FbxCamera*)FbxChildNode->GetNodeAttribute());
+				
 		}
 		Fbx_Importer->Destroy();
 	}
@@ -554,8 +555,23 @@ void FbxDawg::processCamera(FbxCamera * fbxcamera)
 }
 void FbxDawg::processLight(FbxLight * fbxlight)
 {
+	if(fbxlight->LightType.Get()==FbxLight::EType::eDirectional)
+	{
+		directionalLight temp;
+		for (size_t i = 0; i < 3; i++)
+		{
+			temp.lightColor[i] = (float)fbxlight->Color.Get()[i];
+			temp.direction[i] = (float)fbxlight->GetNode()->LclRotation.Get()[i];
+		}
+		temp.intensity = fbxlight->Intensity;
 
-	
+		directionalLightVec.push_back(temp);
+
+	}
+	else
+	{
+		printf("\nNot supported Light");
+	}
 }
 //for mesh
 void FbxDawg::bsLoader(FbxMesh * mesh)
@@ -807,6 +823,16 @@ std::vector<material> FbxDawg::GetMaterialVec()
 std::vector<std::vector<std::vector<MyBSposStruct>>> FbxDawg::GetBSVec()
 {
 	return currentMeshBlendShapes;
+}
+
+std::vector<camera> FbxDawg::GetCameraVec()
+{
+	return cameraVec;
+}
+
+std::vector<directionalLight> FbxDawg::GetDirectionalLightVec()
+{
+	return directionalLightVec;
 }
 
 std::vector<int> FbxDawg::GetBSCount()
