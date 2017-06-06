@@ -2,7 +2,11 @@
     CONSOLE APPLICATION : FishBoX-Exporter Project Overview
 ========================================================================
 
-AppWizard has created this FishBoX-Exporter application for you.
+Project needs manual addition of GLM to compile, and an installation of the Autodesk FBX SDK (project is configured
+for the default install path).
+
+The application converts FBX files located in the project directory to the custom .fsh format
+for the game Survival of the Fishest.
 
 This file contains a summary of what you will find in each of the files that
 make up your FishBoX-Exporter application.
@@ -31,10 +35,5 @@ StdAfx.h, StdAfx.cpp
     These files are used to build a precompiled header (PCH) file
     named FishBoX-Exporter.pch and a precompiled types file named StdAfx.obj.
 
-/////////////////////////////////////////////////////////////////////////////
-Other notes:
 
-AppWizard uses "TODO:" comments to indicate parts of the source code you
-should add to or customize.
 
-/////////////////////////////////////////////////////////////////////////////

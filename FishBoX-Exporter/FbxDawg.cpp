@@ -1,29 +1,4 @@
-
 #include "FbxDawg.h"
-
-
-//How to organize code for readability:
-
-//
-//In h-files:
-//- Public before private.
-//- Everything only used within the function, should be in private.
-//- Have attributes at the top.
-//-	Have comments above each function explaining clearly what the parameters and return values are used for.
-//	Those comments must be written as /** text **/ and placed above the function. This way the comment
-//	will be displayed when hovering pointer over function-name.
-//- Organize functions alphabetically, or by frequency of use.
-//- Organize attributes by type, alphabetically, or frequency of use.
-//- Have the destructors and constructors at the bottom.
-//- Come to an agreement on naming standards of functions, booleans, classes, structs, and variables.
-//- Come to an agreement on how to write out {}.
-//- Generally have short, to-the-point names of functions, variables, and classes.
-
-//In cpp-files:
-//- Have the functions appear in the same order as in the header.
-//- Have functions be the maximum length of one "screen-height"
-//- If some code is within an if-statement: consider making it a function.
-//- Have comments describing parts of the code, and what it's used for.
 
 FbxDawg::FbxDawg()
 {
@@ -271,44 +246,6 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 		tempMesh.vertexData.push_back(tempVertex);
 	}
 
-	//for (int j = 0; j < bsVert.size(); j++)
-	//{
-	//	Vertices = bsVert[j];
-	//	for (int i = 0; i < indexData.size(); i++)
-	//	{
-
-	//		//normals = normalElement->GetDirectArray().GetAt(indexData[i].norIndex);
-	//		//tempVertex.norX = normals[0];
-	//		//tempVertex.norY = normals[1];
-	//		//tempVertex.norZ = (-1)*(normals[2]);
-
-	//		tempBlendShape.x = (float)Vertices[indexData[i].posIndex].mData[0];
-	//		tempBlendShape.y = (float)Vertices[indexData[i].posIndex].mData[1];
-	//		tempBlendShape.z = (float)Vertices[indexData[i].posIndex].mData[2];
-	//		printf("\n%d", i);
-
-	//		if (i == 0)
-	//			printf("\n Read bs%d vert: %f, %f, %f", j + 1, tempBlendShape.x,
-	//				tempBlendShape.y,
-	//				tempBlendShape.z);
-	//		
-	//		if (i == 1)
-	//			printf("\n Read bs%d vert: %f, %f, %f", j + 1, tempBlendShape.x,
-	//				tempBlendShape.y,
-	//				tempBlendShape.z);
-
-	//		if (i == 2)
-	//			printf("\n Read bs%d vert: %f, %f, %f", j + 1, tempBlendShape.x,
-	//				tempBlendShape.y,
-	//				tempBlendShape.z);
-	//			//FbxVector2 UVValue = indexData[i].UVElementempBlendShape.yt->GetDirectArray().GetAt(indexData[i].uvIndex);
-	//		//tempVertex.u = UVValue.mData[0];			tempBlendShape.z
-	//		//tempVertex.v = 1 - UVValue.mData[1];
-
-	//		this->blendShapes.push_back(tempBlendShape);
-	//	}
-	//}
-
 	for (int i = 0; i < bsVert.size(); i++)
 	{
 		int counter = 0;
@@ -320,24 +257,6 @@ void FbxDawg::processMesh(FbxNode * FbxChildNode)
 			tempBlendShapeVert.x = (float)bsVert[i][indexData[j].posIndex].mData[0];
 			tempBlendShapeVert.y = (float)bsVert[i][indexData[j].posIndex].mData[1];
 			tempBlendShapeVert.z = (float)bsVert[i][indexData[j].posIndex].mData[2];
-			//if (i == 0)
-			//	printf("\nRead bs%d vert%d: %f, %f, %f", i + 1, j, tempBlendShapeVert.x, tempBlendShapeVert.y, tempBlendShapeVert.z);
-			//
-
-			//if (i == 0 && j == 6)
-			//	printf("\n");
-
-			//if (i == 1)
-			//	printf("\nRead bs%d vert%d: %f, %f, %f", i + 1, j, tempBlendShapeVert.x, tempBlendShapeVert.y, tempBlendShapeVert.z);
-
-			//if (i == 1 && j == 6)
-			//	printf("\n");
-
-			//if (i == 2)
-			//	printf("\nRead bs%d vert%d: %f, %f, %f", i + 1, j, tempBlendShapeVert.x, tempBlendShapeVert.y, tempBlendShapeVert.z);
-
-			//if (i == 2 && j == 6)
-			//	printf("\n");
 
 			blendShape.push_back(tempBlendShapeVert);
 		}
@@ -470,7 +389,7 @@ void FbxDawg::processUV(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, st
 			UVElement->GetMappingMode() != FbxGeometryElement::eByControlPoint)
 			return;
 		bool useIndex = UVElement->GetReferenceMode() != FbxGeometryElement::eDirect;
-		int indexCount = (useIndex) ? UVElement->GetIndexArray().GetCount() : 0; //<---- what's happening here??? A questionmark? And the : 0 out of nowhere.
+		int indexCount = (useIndex) ? UVElement->GetIndexArray().GetCount() : 0;
 
 		int polyCount = mesh->GetPolygonCount();
 
@@ -487,7 +406,7 @@ void FbxDawg::processUV(FbxMesh* mesh, std::vector<MyVertexStruct>& vertData, st
 					//get the index of the current current vertex in the vertex array
 					int polyVertIndex = mesh->GetPolygonVertex(polyIndex, vertIndex);
 					//the UV index depends on the reference mode
-					int UVIndex = useIndex ? UVElement->GetIndexArray().GetAt(polyVertIndex) : polyVertIndex;//<----questionmark and : again...
+					int UVIndex = useIndex ? UVElement->GetIndexArray().GetAt(polyVertIndex) : polyVertIndex;
 
 					UVValue = UVElement->GetDirectArray().GetAt(UVIndex);
 					indexData[polyIndex*polySize + offsets[vertIndex]].uvIndex = UVIndex;
@@ -599,7 +518,6 @@ void FbxDawg::bsLoader(FbxMesh * mesh)
 					FbxShape * lShape = lChannel->GetTargetShape(lShapeIndex);
 					bsVert.push_back(lShape->GetControlPoints());
 
-					//printf("\nRead bs%d vert%d: %f, %f, %f", lChannelIndex, lShapeIndex, bsVert[lShapeIndex][0].mData[0], lShapeIndex, bsVert[lShapeIndex][0].mData[1], lShapeIndex, bsVert[lShapeIndex][0].mData[2]);
 				}
 			}
 		}
@@ -655,18 +573,12 @@ void FbxDawg::getJointData(FbxNode* rootNode, FbxScene* Fbx_Scene)
 				sBlendingIndexWeightPair currBlendingIndexWeightPair;
 				currBlendingIndexWeightPair.affectedJointIndex = currentJointIndex;
 				currBlendingIndexWeightPair.blendingWeight = currentCluster->GetControlPointWeights()[i];
-				//FUUUUCK what am I supposed to do next? Our code diverges here...
-				//currCluster->GetControlPointIndices()[i] gets the returned value at index i. Meaning that the returned item is a list.
-				//Uhmm... i need to have all of the control points somewhere... So that I can map the cluster's "affected Control Points"
-				//somewhere. OR... Hmm... Can I map them here? Can I get all of the indices of the model? Do I have them already?
+
 				dataPerControlPoint[currentCluster->GetControlPointIndices()[i]]->weightData.push_back(&currBlendingIndexWeightPair);
 				
 			}
 
-			//Now start getting animation information
-			//--> site says "Now only supports one take" in comment here.
-			//stack, according to the "comment" in FbxAnimStack describes a stack as a 
-			//collection of "animation layers". The Fbx-file can have one or more stacks.
+
 			int count = 0;
 			FbxAnimStack* aids;
 			int numStacks = Fbx_Scene->GetSrcObjectCount<FbxAnimStack>();

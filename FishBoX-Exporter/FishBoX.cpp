@@ -52,13 +52,7 @@ void FishBoX::initialize(std::string filepath)
 	printShit();
 	writeShit(newfilename.c_str());
 }
-//
-//void FishBoX::test()
-//{
-//	char derp[256];
-//	std::string string = "hello penis face";
-//	//derp = convertString(string);
-//}
+
 
 void FishBoX::printShit()
 {
@@ -128,44 +122,16 @@ void FishBoX::printShit()
 				printf("\n Written nonbs vert%d: %f, %f, %f\n\n", j, vArray[i][j].pos[0],
 					vArray[i][j].pos[1],
 					vArray[i][j].pos[2]);
-			//printf("Position\n X: %f, Y: %f, Z: %f\n", vArray[i][j].pos[0],
-			//vArray[i][j].pos[1],
-			//vArray[i][j].pos[2]);
 
 			//set normal then print it
 			vArray[i][j].normal[0] = FBX.GetMeshVec()[i].vertexData[j].norX;
 			vArray[i][j].normal[1] = FBX.GetMeshVec()[i].vertexData[j].norY;
 			vArray[i][j].normal[2] = FBX.GetMeshVec()[i].vertexData[j].norZ;
-			/*printf("Normal\n X: %f, Y: %f, Z: %f\n", FBX.GetMeshVec()[i].vertexData[i].norX,
-				FBX.GetMeshVec()[i].vertexData[i].norY,
-				FBX.GetMeshVec()[i].vertexData[i].norZ);*/
 
-			//SET UV AND MMMMMGUESS WHAT... PRINT IT
+
+			//Set UVs then print
 			vArray[i][j].uv[0] = FBX.GetMeshVec()[i].vertexData[j].u;
 			vArray[i][j].uv[1] = FBX.GetMeshVec()[i].vertexData[j].v;
-
-			//printf("UVs\n U: %f, V: %f\n", FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].u,
-			//	FBX.GetMeshVec()[i].vertexData[FBX.GetMeshVec()[i].index[j]].v);
-			//for (int k = 0; k < meArray[i].blendshapesCount; k++)
-			//{
-			//	bsArray[i][j+k].pos[0] = FBX.GetBSVec()[i][j + k].x;
-			//	bsArray[i][j+k].pos[1] = FBX.GetBSVec()[i][j + k].y;
-			//	bsArray[i][j+k].pos[2] = FBX.GetBSVec()[i][j + k].z;
-
-			//	if (j == 0)
-			//		printf("\n Written bs%d vert%d: %f, %f, %f", k+1, j, bsArray[i][j + k].pos[0], bsArray[i][j + k].pos[1], bsArray[i][j + k].pos[2]);
-			//	if (j == 1)
-			//		printf("\n Written bs%d vert%d: %f, %f, %f", k + 1, j, bsArray[i][j + k].pos[0], bsArray[i][j + k].pos[1], bsArray[i][j + k].pos[2]);
-			//		
-			//	if (j == 2)
-			//		printf("\n Written bs%d vert%d: %f, %f, %f", k + 1, j, bsArray[i][j + k].pos[0], bsArray[i][j + k].pos[1], bsArray[i][j + k].pos[2]);
-			//}		
-			//if (j == 0)
-			//	printf("\n");
-			//if (j == 1)
-			//	printf("\n");
-			//if (j == 2)
-			//	printf("\n");
 		}
 
 		for (int j = 0; j <meArray[i].blendshapesCount; j++)
@@ -184,9 +150,9 @@ void FishBoX::printShit()
 			printf("\n");
 		}
 
-		for (int j = 0; j < FBX.GetMeshVec()[i].index.size(); j++) //KEEP GOING HERE LOAD VERTEXIAN DATA AND INDEXIES
+		for (int j = 0; j < FBX.GetMeshVec()[i].index.size(); j++) //load vertexes and indices
 		{
-			// SET GOD DAMNED INDIIICEEEEES!½
+			// Set indices
 			iArray[i][j].vertexIndex = FBX.GetMeshVec()[i].index[j];
 		}
 	}
@@ -332,7 +298,6 @@ void FishBoX::writeShit(std::string filepath)
 
 
 	//lightwrite
-
 	outfile.close();
 	
 	for (int i = 0; i < texVector.size(); i++)
@@ -351,7 +316,7 @@ void FishBoX::writeShit(std::string filepath)
 
 		texIn.read(buffer, size);
 
-		//texOut.write((char*)&size, sizeof(long)); 
+
 		texOut.write(buffer, size);
 
 		delete[] buffer;
@@ -404,19 +369,10 @@ void FishBoX::writeErrorCheck() //check if written file matches file in memory
 		tVertex[i] = new vertexData[tMesh[i].vertexCount];
 		tIndex[i] = new index[tMesh[i].indexCount];
 
-		//printf("\n\nMesh: %d", (i + 1));
-		//printf("\nMaterialName: %c%c%c%c", tMesh[i].materialName[0], tMesh[i].materialName[1], tMesh[i].materialName[2], tMesh[i].materialName[3]); //TEMP
-		//printf("\n\nVertices: %d", tMesh[i].vertexCount);
-		//printf("\nBlendShapes: %d", tMesh[i].blendshapesCount);
-		//printf("\nIndices: %d", tMesh[i].indexCount);
 
 		infile.read((char*)tVertex[i], sizeof(vertexData) * tMesh[i].vertexCount);
 		infile.read((char*)tIndex[i], sizeof(index) * tMesh[i].indexCount);
 
-		//for (int j = 0; j < tMesh[i].vertexCount; j++)
-		//{
-		//	printf("\n%f, %f, %f", tVertex[i][j].pos[0], tVertex[i][j].pos[1], tVertex[i][j].pos[2]);
-		//}
 
 		printf("\nMESH %d ERROR CHECK:" , i);
 		result = memcmp(&tMesh[i], &meArray[i], sizeof(mesh));

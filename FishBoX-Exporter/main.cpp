@@ -1,5 +1,5 @@
 // FishBoX-Exporter.cpp : Defines the entry point for the console application.
-//
+
 
 
 #include "FishBoX.h"
@@ -42,12 +42,7 @@ void run()
 
 int main()
 {
-	run();
-	
-
-	//FishBoX fishbox;
-
-	
+	run();	
 
     return 0;
 }
